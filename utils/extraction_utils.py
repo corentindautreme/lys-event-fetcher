@@ -1,5 +1,9 @@
+import datetime
 import re
 from dateparser.search import search_dates
+
+from utils.time_utils import is_day_of_week
+from model.event_suggestion import EventSuggestion
 
 
 def check_for_repetition_expression(sentence):
@@ -86,7 +90,7 @@ def check_for_repetition_expression(sentence):
 
 			# Find end of cycle
 			idx_start = min(i for i in [sentence.find(token) for token in ["end", "to", "until", "and"]] if i > -1)
-			idx_end = re.search(" [a-z]", sentence[idx_start:]).start()
+			idx_end = re.search("( [a-z])|\.", sentence[idx_start:]).start()
 			end_expression = sentence[idx_start:idx_start+idx_end]
 			dates = search_dates(end_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or []
 			if len(dates) != 1:
