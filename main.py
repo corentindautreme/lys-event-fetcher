@@ -6,7 +6,7 @@ from dateparser.search import search_dates
 
 from model.story import Story
 from model.event_suggestion import EventSuggestion
-from utils.eurovision_utils import get_country_data
+from utils.eurovision_utils import get_countries_data
 from utils.time_utils import is_temporal_sentence, is_day_of_week
 from utils.extraction_utils import check_for_repetition_expression
 
@@ -27,8 +27,8 @@ suggested_events = []
 NEXT_SUGGESTED_EVENT_ID = 0
 event_suggestions_to_be_saved = []
 
-country_data = get_country_data()
-countries = country_data.keys()
+countries_data = get_countries_data()
+countries = countries_data.keys()
 
 
 def create_story(item):
@@ -53,8 +53,8 @@ def create_story(item):
 	return Story(country, content, item.find('link').text)
 
 
-def get_event_for_country(country):
-	return country_data.get(country)['eventName']
+def get_country_data(country):
+	return countries_data.get(country)
 
 
 def mark_event_suggestion_for_saving(suggested_event):
@@ -115,6 +115,7 @@ def extract_events(event, is_local_env):
 			stories.append(story)
 
 	for story in stories:
+		country_data = get_country_data(story.country)
 		sentences = story.text.split('.')
 		sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
 		events_for_story = []
@@ -129,8 +130,9 @@ def extract_events(event, is_local_env):
 			sentence_events = check_for_repetition_expression(sentence)
 			for event in sentence_events:
 				event.country = story.country
-				event.name = get_event_for_country(story.country)
+				event.name = country_data['eventName']
 				event.sourceLink = story.sourceLink
+				event.watchLink = country_data['watchLink']
 				events_for_story.append(event)
 
 			if len(events_for_story) > 0:
@@ -156,7 +158,7 @@ def extract_events(event, is_local_env):
 		if len(events_for_story) == 0:
 			for i in range(1,len(filtered_dates)+1):
 				date = filtered_dates[i-1]
-				event_suggestion = EventSuggestion(story.country, get_event_for_country(story.country), ("Semi-final " if has_semi_finals else "Night ") + str(i) if i < len(filtered_dates) else "Final", [date], story.sourceLink)
+				event_suggestion = EventSuggestion(story.country, country_data['eventName'], ("Semi-final " if has_semi_finals else "Night ") + str(i) if i < len(filtered_dates) else "Final", [date], story.sourceLink, country_data['watchLink'])
 				events_for_story.append(event_suggestion)
 
 		event_suggestions.extend(events_for_story)

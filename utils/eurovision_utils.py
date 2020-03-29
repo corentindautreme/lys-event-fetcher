@@ -1,4 +1,4 @@
-def get_country_data():
+def get_countries_data():
 	return {
 		'Albania': {
 			'eventName': 'Festivali i Këngës',
