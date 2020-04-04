@@ -17,7 +17,7 @@ def check_for_repetition_expression(sentence):
 
 	begin_date = None
 	end_date = None
-	events = []
+	event_dates = []
 
 	if re.match(start_every_end, sentence) != None:
 		try:
@@ -52,20 +52,20 @@ def check_for_repetition_expression(sentence):
 				it_date = begin_date
 				i = 1
 				while it_date < end_date:
-					events.append(EventSuggestion("", "", "Night " + str(i), [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
+					event_dates.append((sentence, it_date))
 					it_date += datetime.timedelta(days=7)
 					i += 1
-				events.append(EventSuggestion("", "", "Final", [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
-				return events
+				event_dates.append((sentence, it_date))
+				return event_dates
 			elif frequency in ["day", "night", "evening"]:
 				it_date = begin_date
 				i = 1
 				while it_date < end_date:
-					events.append(EventSuggestion("", "", "Night " + str(i), [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
+					event_dates.append((sentence, it_date))
 					it_date += datetime.timedelta(days=1)
 					i += 1
-				events.append(EventSuggestion("", "", "Final", [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
-				return events
+				event_dates.append((sentence, it_date))
+				return event_dates
 		except Exception as e:
 			print("Error parsing repetition expression \"" + sentence + "\" against pattern \"" + start_every_end_pattern + "\" - Exception is: " + str(e))
 
@@ -97,8 +97,6 @@ def check_for_repetition_expression(sentence):
 				return []
 			else:
 				end_date = dates[0][1]
-				print(end_expression)
-				print(end_date)
 			
 			if len(frequency.split(' ')) > 1:
 				# TODO uncovered use case: longer frequency expression or unrecognized
@@ -108,20 +106,20 @@ def check_for_repetition_expression(sentence):
 				it_date = begin_date
 				i = 1
 				while it_date < end_date:
-					events.append(EventSuggestion("", "", "Night " + str(i), [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
+					event_dates.append((sentence, it_date))
 					it_date += datetime.timedelta(days=7)
 					i += 1
-				events.append(EventSuggestion("", "", "Final", [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
-				return events
+				event_dates.append((sentence, it_date))
+				return event_dates
 			elif frequency in ["day", "night", "evening"]:
 				it_date = begin_date
 				i = 1
 				while it_date < end_date:
-					events.append(EventSuggestion("", "", "Night " + str(i), [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
+					event_dates.append((sentence, it_date))
 					it_date += datetime.timedelta(days=1)
 					i += 1
-				events.append(EventSuggestion("", "", "Final", [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
-				return events
+				event_dates.append((sentence, it_date))
+				return event_dates
 		except Exception as e:
 			print("Error parsing repetition expression \"" + sentence + "\" against pattern \"" + every_from_to_pattern + "\" - Exception is: " + str(e))
 
@@ -162,20 +160,20 @@ def check_for_repetition_expression(sentence):
 				it_date = begin_date
 				i = 1
 				while it_date < end_date:
-					events.append(EventSuggestion("", "", "Night " + str(i), [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
+					event_dates.append((sentence, it_date))
 					it_date += datetime.timedelta(days=7)
 					i += 1
-				events.append(EventSuggestion("", "", "Final", [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
-				return events
+				event_dates.append((sentence, it_date))
+				return event_dates
 			elif frequency in ["day", "night", "evening"]:
 				it_date = begin_date
 				i = 1
 				while it_date < end_date:
-					events.append(EventSuggestion("", "", "Night " + str(i), [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
+					event_dates.append((sentence, it_date))
 					it_date += datetime.timedelta(days=1)
 					i += 1
-				events.append(EventSuggestion("", "", "Final", [{'date': it_date.strftime("%Y-%m-%d") + "T20:00:00", 'context': ''}], "", ""))
-				return events
+				event_dates.append((sentence, it_date))
+				return event_dates
 		except Exception as e:
 			print("Error parsing repetition expression \"" + sentence + "\" against pattern \"" + from_to_every_pattern + "\" - Exception is: " + str(e))
 

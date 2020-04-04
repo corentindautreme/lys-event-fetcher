@@ -82,53 +82,45 @@ def get_events_for_story(story, current_datetime):
 	country_data = get_country_data(story.country)
 	sentences = story.text.split('.')
 	sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
-	events_for_story = []
-	dates = []
-	has_semi_finals = False
+	found_dates = []
 
 	for sentence in sentences:
-		if "semi-final" in sentence.lower():
-			has_semi_finals = True
-
 		sentence_events = []
-		sentence_events = check_for_repetition_expression(sentence)
-		for event in sentence_events:
-			event.country = story.country
-			event.name = country_data['eventName']
-			event.sourceLink = story.sourceLink
-			event.watchLink = country_data['watchLink']
-			events_for_story.append(event)
+		repetition_dates = check_for_repetition_expression(sentence)
 
-		if len(events_for_story) > 0:
+		if len(repetition_dates) > 0:
+			found_dates = repetition_dates
 			break
 		else:
 			# Correcting sentences by adding repetition where needed to make it easier for the date parser:
 			# January 1 & 2 => January 1 and January 2; 1st and 2nd January => 1st January and 2nd January
 			sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \1 \3,', sentence)
 			sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3, \2 \3,', sentence)
-			found_dates = search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or []
-			
-			# correcting the years for upcoming dates (post containing "on February 15" in November => February 15 of the next year)
-			# we're only applying this correction if current month >= August (so we don't catch fake positives by mistake, e.g "The semi-final took place on February 8 and...")
-			if current_datetime.month >= 8:
-				for i, date in enumerate(found_dates):
-					if date[1] < current_datetime and date[1].year == current_datetime.year and date[1].month <= 3:
-						found_dates[i] = (date[0], date[1].replace(year=date[1].year+1))
+			found_dates.extend(search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or [])
 
-			# filtering out the false positives
-			# non-dates ("placed 12th in the final", "got 20% of the vote", etc.)
-			found_dates = list(filter(lambda d: is_temporal_sentence(d[0]), found_dates))
-			# years ("in 2019", etc.)
-			found_dates = list(filter(lambda d: re.match(re.compile("[a-z ]*20[0-9]{2}[a-z ]*"), d[0]) == None, found_dates))
-			# too close (like this day next week or such)
-			found_dates = list(filter(lambda d: not(re.match(re.compile("^[a-zA-Z ]+$"), d[0]) != None and d[1].day == current_datetime.day), found_dates))
-			# past dates
-			found_dates = list(filter(lambda d: d[1] > current_datetime, found_dates))
-			# beyond 2 years in the future
-			found_dates = list(filter(lambda d: d[1].year <= current_datetime.year + 2, found_dates))
-			# before september or beyond march
-			found_dates = list(filter(lambda d: d[1].month >= 9 and d[1].month <= 12 or d[1].month <= 3, found_dates))
-			dates.extend(list(map(lambda d: {'date': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0]}, found_dates)))
+	# correcting the years for upcoming dates (post containing "on February 15" in November => February 15 of the next year)
+	# we're only applying this correction if current month >= August (so we don't catch fake positives by mistake, e.g "The semi-final took place on February 8 and...")
+	if current_datetime.month >= 8:
+		for i, date in enumerate(found_dates):
+			if date[1] < current_datetime and date[1].year == current_datetime.year and date[1].month <= 3:
+				found_dates[i] = (date[0], date[1].replace(year=date[1].year+1))
+
+	# filtering out the false positives
+	# non-dates ("placed 12th in the final", "got 20% of the vote", etc.)
+	found_dates = list(filter(lambda d: is_temporal_sentence(d[0]), found_dates))
+	# years ("in 2019", etc.)
+	found_dates = list(filter(lambda d: re.match(re.compile("[a-z ]*20[0-9]{2}[a-z ]*"), d[0]) == None, found_dates))
+	# too close (like this day next week or such)
+	found_dates = list(filter(lambda d: not(re.match(re.compile("^[a-zA-Z ]+$"), d[0]) != None and d[1].day == current_datetime.day), found_dates))
+	# past dates
+	found_dates = list(filter(lambda d: d[1] > current_datetime, found_dates))
+	# beyond 2 years in the future
+	found_dates = list(filter(lambda d: d[1].year <= current_datetime.year + 2, found_dates))
+	# before september or beyond march
+	found_dates = list(filter(lambda d: d[1].month >= 9 and d[1].month <= 12 or d[1].month <= 3, found_dates))
+	
+	dates = []
+	dates.extend(list(map(lambda d: {'date': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0]}, found_dates)))
 
 	filtered_dates = []
 
@@ -137,19 +129,14 @@ def get_events_for_story(story, current_datetime):
 		if not any(d['date'] == date['date'] for d in filtered_dates):
 			filtered_dates.append(date)
 	filtered_dates = sorted(filtered_dates, key=lambda d: d['date'])
-
-	if len(events_for_story) == 0:
-		for i in range(0,len(filtered_dates)):
-			date = filtered_dates[i]
-			# event_suggestion = EventSuggestion(story.country, country_data['eventName'], stages_for_events[i], [date], story.sourceLink, country_data['watchLink'])
-			event_suggestion = EventSuggestion(story.country, country_data['eventName'], '', [date], story.sourceLink, country_data['watchLink'])
-			events_for_story.append(event_suggestion)
-
-	stages_for_events = generate_event_stages(len(events_for_story), country_data['stages'], story.country)
 	
-	print(stages_for_events)
-	for i in range(0, len(events_for_story)):
-		events_for_story[i].set_stage(stages_for_events[i])
+	stages_for_events = generate_event_stages(len(filtered_dates), country_data['stages'], story.country)
+	events_for_story = []
+
+	for i in range(0,len(filtered_dates)):
+		date = filtered_dates[i]
+		event_suggestion = EventSuggestion(story.country, country_data['eventName'], stages_for_events[i], [date], story.sourceLink, country_data['watchLink'])
+		events_for_story.append(event_suggestion)
 
 	return events_for_story
 

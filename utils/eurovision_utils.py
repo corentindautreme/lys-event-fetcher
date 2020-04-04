@@ -178,7 +178,7 @@ def get_countries_data():
 		'Norway': {
 			'eventName': 'Melodi Grand Prix',
 			'watchLink': 'nrk.no/mgp',
-			'stages': ['Night...', 'Final']
+			'stages': ['Heat...', 'Final']
 		},
 		'Poland': {
 			'eventName': 'Szansa na Sukces',
