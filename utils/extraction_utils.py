@@ -80,7 +80,7 @@ def check_for_repetition_expression(sentence):
 
 			# Find beginning of cycle
 			idx_start = min(i for i in [sentence.find(token) for token in ["start", "between", "from", "begin"]] if i > -1)
-			idx_end = min(i for i in [sentence.find(token) for token in ["end", "to", "until", "and"]] if i > -1)
+			idx_end = idx_start + min(i for i in [sentence[idx_start:].find(token) for token in [" end", " to", " until", " and"]] if i > -1)
 			begin_expression = sentence[idx_start:idx_end]
 			dates = search_dates(begin_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or []
 			if len(dates) != 1:
@@ -89,14 +89,16 @@ def check_for_repetition_expression(sentence):
 				begin_date = dates[0][1]
 
 			# Find end of cycle
-			idx_start = min(i for i in [sentence.find(token) for token in ["end", "to", "until", "and"]] if i > -1)
-			idx_end = re.search("( [a-z])|\.", sentence[idx_start:]).start()
+			idx_start = idx_end + min(i for i in [sentence[idx_end:].find(token) for token in ["end", "to", "until", "and"]] if i > -1)
+			idx_end = re.search("( [a-z])|\.|$", sentence[idx_start:]).start()
 			end_expression = sentence[idx_start:idx_start+idx_end]
 			dates = search_dates(end_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or []
 			if len(dates) != 1:
 				return []
 			else:
 				end_date = dates[0][1]
+				print(end_expression)
+				print(end_date)
 			
 			if len(frequency.split(' ')) > 1:
 				# TODO uncovered use case: longer frequency expression or unrecognized
@@ -127,7 +129,7 @@ def check_for_repetition_expression(sentence):
 		try:
 			# Find beginning of cycle
 			idx_start = min(i for i in [sentence.find(token) for token in ["from", "between"]] if i > -1)
-			idx_end = min(i for i in [sentence.find(token) for token in ["to", "until", "and"]] if i > -1)
+			idx_end = idx_start + min(i for i in [sentence[idx_start:].find(token) for token in ["to", "until", "and"]] if i > -1)
 			begin_expression = sentence[idx_start:idx_end]
 			dates = search_dates(begin_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or []
 			if len(dates) != 1:
@@ -136,9 +138,10 @@ def check_for_repetition_expression(sentence):
 				begin_date = dates[0][1]
 
 			# Find end of cycle
-			idx_start = min(i for i in [sentence.find(token) for token in ["to", "until", "and"]] if i > -1)
+			idx_start = idx_end + min(i for i in [sentence[idx_end:].find(token) for token in ["to", "until", "and"]] if i > -1)
 			idx_end = min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)
 			end_expression = sentence[idx_start:idx_end]
+
 			dates = search_dates(end_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or []
 			if len(dates) != 1:
 				return []

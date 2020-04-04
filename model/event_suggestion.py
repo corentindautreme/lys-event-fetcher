@@ -10,6 +10,9 @@ class EventSuggestion():
 		self.accepted = False
 		self.processed = False
 
+	def set_stage(self, stage):
+		self.stage = stage
+
 	def __iter__(self):
 		yield 'id', self.id
 		yield 'country', self.country

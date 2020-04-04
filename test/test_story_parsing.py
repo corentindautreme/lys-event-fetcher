@@ -11,7 +11,7 @@ class StoryParsingTest(unittest.TestCase):
 			"Norway will participate in the Eurovision Song Contest 2020. Melodi Grand Prix will again be used to select the country's entrant, with the final taking place on the 15th of February.",
 			"http://link.com"
 		)
-		events = get_events_for_story(story)
+		events = get_events_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
 		self.assertTrue(len(events) == 1)
 		self.assertTrue(len(events[0].dateTimesCet) == 1)
 		date = events[0].dateTimesCet[0]['date']
@@ -24,7 +24,7 @@ class StoryParsingTest(unittest.TestCase):
 			"Jan Då has won Melodifestivalen and will represent Sweden. Sweden will take part in the first semi-final on May 12.",
 			"http://link"
 		)
-		events = get_events_for_story(story)
+		events = get_events_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
 		self.assertTrue(len(events) == 0)
 
 
@@ -34,7 +34,7 @@ class StoryParsingTest(unittest.TestCase):
 			"Estonia will choose their representative through Eesti Laul. The semi-finals will take place on February 8 and 10, and the final on February 22. Estonia will take part in the first semi-final on May 12.",
 			"http://link"
 		)
-		events = get_events_for_story(story)
+		events = get_events_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
 		self.assertTrue(len(events) == 3)
 		self.assertTrue(events[0].dateTimesCet[0]['date'][5:10] == "02-08")
 		self.assertTrue(events[1].dateTimesCet[0]['date'][5:10] == "02-10")
@@ -47,6 +47,6 @@ class StoryParsingTest(unittest.TestCase):
 			"Destination Eurovision will take place on the 25th of January. Last year france was represented by Jean D'eau who won Destination Eurovision with 25% of the public vote and 155 points. He finished 16th at Eurovision 2019.",
 			"http://link"
 		)
-		events = get_events_for_story(story)
+		events = get_events_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
 		self.assertTrue(len(events) == 1)
 		self.assertTrue(events[0].dateTimesCet[0]['date'][5:10] == "01-25")

@@ -6,7 +6,7 @@ from dateparser.search import search_dates
 
 from model.story import Story
 from model.event_suggestion import EventSuggestion
-from utils.eurovision_utils import get_countries_data
+from utils.eurovision_utils import get_countries_data, generate_event_stages
 from utils.time_utils import is_temporal_sentence, is_day_of_week
 from utils.extraction_utils import check_for_repetition_expression
 
@@ -19,7 +19,13 @@ try:
 	dynamodb = boto3.resource('dynamodb')
 	events_table = dynamodb.Table('lys_events')
 	suggested_events_table = dynamodb.Table('lys_suggested_events')
+	country_ref_table = dynamodb.Table('lys_ref_country')
+
+	ccountries_data = {}
+	for d in country_ref_table.scan()['Items']:
+		countries_data[d['country']] = d
 except NameError:
+	countries_data = get_countries_data()
 	pass
 
 events = []
@@ -27,7 +33,6 @@ suggested_events = []
 NEXT_SUGGESTED_EVENT_ID = 0
 event_suggestions_to_be_saved = []
 
-countries_data = get_countries_data()
 countries = countries_data.keys()
 
 
@@ -73,6 +78,82 @@ def mark_event_suggestion_for_saving(suggested_event):
 		event_suggestions_to_be_saved.append(suggested_event)
 
 
+def get_events_for_story(story, current_datetime):
+	country_data = get_country_data(story.country)
+	sentences = story.text.split('.')
+	sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
+	events_for_story = []
+	dates = []
+	has_semi_finals = False
+
+	for sentence in sentences:
+		if "semi-final" in sentence.lower():
+			has_semi_finals = True
+
+		sentence_events = []
+		sentence_events = check_for_repetition_expression(sentence)
+		for event in sentence_events:
+			event.country = story.country
+			event.name = country_data['eventName']
+			event.sourceLink = story.sourceLink
+			event.watchLink = country_data['watchLink']
+			events_for_story.append(event)
+
+		if len(events_for_story) > 0:
+			break
+		else:
+			# Correcting sentences by adding repetition where needed to make it easier for the date parser:
+			# January 1 & 2 => January 1 and January 2; 1st and 2nd January => 1st January and 2nd January
+			sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \1 \3,', sentence)
+			sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3, \2 \3,', sentence)
+			found_dates = search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or []
+			
+			# correcting the years for upcoming dates (post containing "on February 15" in November => February 15 of the next year)
+			# we're only applying this correction if current month >= August (so we don't catch fake positives by mistake, e.g "The semi-final took place on February 8 and...")
+			if current_datetime.month >= 8:
+				for i, date in enumerate(found_dates):
+					if date[1] < current_datetime and date[1].year == current_datetime.year and date[1].month <= 3:
+						found_dates[i] = (date[0], date[1].replace(year=date[1].year+1))
+
+			# filtering out the false positives
+			# non-dates ("placed 12th in the final", "got 20% of the vote", etc.)
+			found_dates = list(filter(lambda d: is_temporal_sentence(d[0]), found_dates))
+			# years ("in 2019", etc.)
+			found_dates = list(filter(lambda d: re.match(re.compile("[a-z ]*20[0-9]{2}[a-z ]*"), d[0]) == None, found_dates))
+			# too close (like this day next week or such)
+			found_dates = list(filter(lambda d: not(re.match(re.compile("^[a-zA-Z ]+$"), d[0]) != None and d[1].day == current_datetime.day), found_dates))
+			# past dates
+			found_dates = list(filter(lambda d: d[1] > current_datetime, found_dates))
+			# beyond 2 years in the future
+			found_dates = list(filter(lambda d: d[1].year <= current_datetime.year + 2, found_dates))
+			# before september or beyond march
+			found_dates = list(filter(lambda d: d[1].month >= 9 and d[1].month <= 12 or d[1].month <= 3, found_dates))
+			dates.extend(list(map(lambda d: {'date': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0]}, found_dates)))
+
+	filtered_dates = []
+
+	for date in dates:
+		# filtering out duplicates
+		if not any(d['date'] == date['date'] for d in filtered_dates):
+			filtered_dates.append(date)
+	filtered_dates = sorted(filtered_dates, key=lambda d: d['date'])
+
+	if len(events_for_story) == 0:
+		for i in range(0,len(filtered_dates)):
+			date = filtered_dates[i]
+			# event_suggestion = EventSuggestion(story.country, country_data['eventName'], stages_for_events[i], [date], story.sourceLink, country_data['watchLink'])
+			event_suggestion = EventSuggestion(story.country, country_data['eventName'], '', [date], story.sourceLink, country_data['watchLink'])
+			events_for_story.append(event_suggestion)
+
+	stages_for_events = generate_event_stages(len(events_for_story), country_data['stages'], story.country)
+	
+	print(stages_for_events)
+	for i in range(0, len(events_for_story)):
+		events_for_story[i].set_stage(stages_for_events[i])
+
+	return events_for_story
+
+
 def extract_events(event, is_local_env):
 	global events
 	global suggested_events
@@ -115,52 +196,7 @@ def extract_events(event, is_local_env):
 			stories.append(story)
 
 	for story in stories:
-		country_data = get_country_data(story.country)
-		sentences = story.text.split('.')
-		sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
-		events_for_story = []
-		dates = []
-		has_semi_finals = False
-
-		for sentence in sentences:
-			if "semi-final" in sentence.lower():
-				has_semi_finals = True
-
-			sentence_events = []
-			sentence_events = check_for_repetition_expression(sentence)
-			for event in sentence_events:
-				event.country = story.country
-				event.name = country_data['eventName']
-				event.sourceLink = story.sourceLink
-				event.watchLink = country_data['watchLink']
-				events_for_story.append(event)
-
-			if len(events_for_story) > 0:
-				break
-			else:
-				sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \1 \3,', sentence)
-				sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3, \2 \3,', sentence)
-				found_dates = search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or []
-
-				# FIltering out the false positives
-				found_dates = list(filter(lambda d: re.match(re.compile("[a-z ]*20[0-9]{2}[a-z ]*"), d[0]) == None, found_dates))
-				found_dates = list(filter(lambda d: not(re.match(re.compile("^[a-zA-Z ]+$"), d[0]) != None and d[1].day == datetime.datetime.now().day), found_dates))
-				found_dates = list(filter(lambda d: d[1] > datetime.datetime.now(), found_dates))
-				found_dates = list(filter(lambda d: d[1].year <= datetime.datetime.now().year + 2, found_dates))
-				dates.extend(list(map(lambda d: {'date': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0]}, found_dates)))
-
-		filtered_dates = []
-		for date in dates:
-			if not any(d['date'] == date['date'] for d in filtered_dates):
-				filtered_dates.append(date)
-		filtered_dates = sorted(filtered_dates, key=lambda d: d['date'])
-
-		if len(events_for_story) == 0:
-			for i in range(1,len(filtered_dates)+1):
-				date = filtered_dates[i-1]
-				event_suggestion = EventSuggestion(story.country, country_data['eventName'], ("Semi-final " if has_semi_finals else "Night ") + str(i) if i < len(filtered_dates) else "Final", [date], story.sourceLink, country_data['watchLink'])
-				events_for_story.append(event_suggestion)
-
+		events_for_story = get_events_for_story(story, datetime.datetime.now())
 		event_suggestions.extend(events_for_story)
 
 	print("Extracted events:")
