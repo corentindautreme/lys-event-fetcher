@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import datetime
 import requests
 import re
+import string
 from dateparser.search import search_dates
 
 from model.story import Story
@@ -43,6 +44,14 @@ def create_story(item):
 		if cat in countries:
 			country = cat
 			break
+
+	# if no country found in the category, try the title
+	if country == "":
+		title = item.find('title').text
+		for word in title.translate(str.maketrans('', '', string.punctuation)).split(' '):
+			if word in countries:
+				country = word
+				break
 
 	if country == "":
 		return Story("", "", "")
