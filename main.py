@@ -108,8 +108,8 @@ def get_events_for_story(story, current_datetime):
 			found_dates.extend(search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or [])
 
 	# correcting the years for upcoming dates (post containing "on February 15" in November => February 15 of the next year)
-	# we're only applying this correction if current month >= August (so we don't catch fake positives by mistake, e.g "The semi-final took place on February 8 and...")
-	if current_datetime.month >= 8:
+	# we're only applying this correction if current month >= April (so we don't catch fake positives by mistake, e.g "The semi-final took place on February 8 and...")
+	if current_datetime.month >= 4:
 		for i, date in enumerate(found_dates):
 			if date[1] < current_datetime and date[1].year == current_datetime.year and date[1].month <= 3:
 				found_dates[i] = (date[0], date[1].replace(year=date[1].year+1))
