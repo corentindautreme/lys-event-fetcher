@@ -1,0 +1,47 @@
+name: Deploy lambda
+
+on:
+  push:
+    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Hello world
+      run: |
+        echo test
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Test
+      run: |
+        pip install pytest
+        pytest test/
+    - name: Package
+      if: success()
+      run: |
+        mkdir lib
+        pip install -r requirements.txt --target=lib/
+        zip -ur lys_event_fetcher.zip model/ utils/ main.py
+        cd lib
+        zip -ur ../lys_event_fetcher.zip *
+        cd ..
+    - name: Deploy
+      if: success()
+      uses: stcalica/update-lambda@0.0.2
+      with:
+        package: lys_event_fetcher.zip
+        function-name: LysEventFetcher
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
+        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
