@@ -10,6 +10,7 @@ from model.event_suggestion import EventSuggestion
 from utils.eurovision_utils import get_countries_data, generate_event_stages
 from utils.time_utils import is_temporal_sentence, is_day_of_week
 from utils.extraction_utils import check_for_repetition_expression
+from utils.story_parsing_utils import get_nf_items_from_xml_items
 
 try:
 	import boto3
@@ -35,6 +36,7 @@ NEXT_SUGGESTED_EVENT_ID = 0
 event_suggestions_to_be_saved = []
 
 countries = countries_data.keys()
+nf_names = set(map(lambda d: d['eventName'].lower(), list(countries_data.values())))
 
 
 def create_story(item):
@@ -177,11 +179,7 @@ def extract_events(event, is_local_env):
 
 	items = root.find('channel').findall('item')
 
-	nf_items = list(filter(lambda item: ('NATIONAL SELECTION' in list(map(lambda c: c.text.upper(), item.findall('category')))), items))
-
-	excluded_categories = [".*JUNIOR.*", ".*YOUNG MUSICIANS.*", ".*CHOIR.*", ".*YOUNG DANCERS.*"]
-	combined = "(" + ")|(".join(excluded_categories) + ")"
-	nf_items = [item for item in nf_items if not any(re.match(combined, category) for category in list(map(lambda c: c.text.upper(), item.findall('category'))))]
+	nf_items = get_nf_items_from_xml_items(items, nf_names)
 
 	stories = []
 	event_suggestions = []
