@@ -149,3 +149,29 @@ class StoryParsingTest(unittest.TestCase):
 		nf_items = get_nf_items_from_xml_items(items, ['melodifestivalen'])
 		titles = list(map(lambda i: i.find('title').text, nf_items))
 		self.assertTrue(len(nf_items) == 0)
+
+	def test_if_xml_items_include_items_without_national_selection_category_but_with_nf_name_or_alt_name_in_title_then_should_return_them(self):
+		xml_items = """
+			<items>
+				<item>
+					<title>Sweden: Melfest final on March 13</title>
+					<link>https://eurovoix.com/</link>
+					<category>Sweden</category>
+					<content>Content</content>
+				</item>
+				<item>
+					<title>Finland: UMK 2021 opens submission window</title>
+					<link>https://eurovoix.com/</link>
+					<category>Random category</category>
+					<content>Content</content>
+				</item>
+			</items>
+		""".replace('\n', '').replace('\t', '')
+		root = ET.fromstring(xml_items)
+		items = root.findall('item')
+		
+		nf_items = get_nf_items_from_xml_items(items, ['melodifestivalen', 'melfest', 'umk', 'uuden musiikin kilpailu'])
+		titles = list(map(lambda i: i.find('title').text, nf_items))
+		self.assertTrue(len(nf_items) == 2)
+		self.assertTrue(titles[0] == "Sweden: Melfest final on March 13")
+		self.assertTrue(titles[1] == "Finland: UMK 2021 opens submission window")

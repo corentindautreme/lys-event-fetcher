@@ -3,252 +3,302 @@ def get_countries_data():
 		'Albania': {
 			'eventName': 'Festivali i Këngës',
 			'watchLink': 'https://www.rtsh.al/rtsh-live/RTSH1-HD.html',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["FiK"]
 		},
 		'Andorra': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Armenia': {
 			'eventName': 'Depi Evratesil',
 			'watchLink': 'https://www.1tv.am/en/',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Australia': {
 			'eventName': 'Australia Decides',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Austria': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Azerbaijan': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Belarus': {
 			'eventName': 'Eurofest',
 			'watchLink': 'https://www.tvr.by/televidenie/belarus-1/',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Belgium': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Bosnia and Herzegovina': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Bulgaria': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Croatia': {
 			'eventName': 'Dora',
 			'watchLink': 'https://hrti.hrt.hr/live/tv?channel=40013 or HRTi OTT smartphone app - account required',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Cyprus': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Czech Republic':  {
 			'eventName': 'Eurovision Song CZ',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["ESCZ"]
 		},
 		'Denmark': {
 			'eventName': 'Dansk Melodi Grand Prix',
 			'watchLink': 'https://www.dr.dk/tv/live/dr1',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["DMGP"]
 		},
 		'Estonia': {
 			'eventName': 'Eesti Laul',
 			'watchLink': 'otse.err.ee/k/etv',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Finland': {
 			'eventName': 'Uuden Musiikin Kilpailu',
 			'watchLink': 'https://areena.yle.fi/tv/ohjelmat/yle-tv1',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["UMK"]
 		},
 		'France': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Georgia': {
 			'eventName': 'Georgian Idol',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Germany': {
 			'eventName': 'Unser Lied für ',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Greece': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Hungary': {
 			'eventName': 'A Dal',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Iceland': {
 			'eventName': 'Söngvakeppnin',
 			'watchLink': 'https://www.ruv.is/sjonvarp/beint?channel=ruv',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Ireland': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Israel': {
 			'eventName': '-',
 			'watchLink': 'https://www.kan.org.il/live/tv.aspx?stationid=2',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Italy': {
 			'eventName': 'Festival di Sanremo',
 			'watchLink': 'https://www.raiplay.it/dirette/rai1',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["Sanremo"]
 		},
 		'Latvia': {
 			'eventName': 'Supernova',
 			'watchLink': 'https://ltv.lsm.lv/lv/tieshraide/ltv1/live.360/',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Lithuania': {
 			'eventName': 'Pabandom iš naujo',
 			'watchLink': 'lrt.lt/mediateka/tiesiogiai/lrt-televizija',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["PiN"]
 		},
 		'Luxembourg': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Malta': {
 			'eventName': 'X Factor Malta',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Moldova': {
 			'eventName': 'O melodie pentru Europa',
 			'watchLink': 'http://www.trm.md/ro/moldova-1',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["OMPE"]
 		},
 		'Monaco': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Montenegro': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Morocco': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Netherlands': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'North Macedonia': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Norway': {
 			'eventName': 'Melodi Grand Prix',
 			'watchLink': 'nrk.no/mgp',
-			'stages': ['Heat...', 'Final']
+			'stages': ['Heat...', 'Final'],
+    		"altEventNames": ["MGP"]
 		},
 		'Poland': {
 			'eventName': 'Szansa na Sukces',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Portugal': {
 			'eventName': 'Festival da Canção',
 			'watchLink': 'https://www.rtp.pt/play/direto/rtp1',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["FdC"]
 		},
 		'Romania': {
 			'eventName': 'Selecția Națională',
 			'watchLink': 'https://www.tvrplus.ro/',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Russia': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'San Marino': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Serbia': {
 			'eventName': 'Beovizija',
 			'watchLink': 'RTS Svet (https://rtsplaneta.rs/linear/16889 or RTS Planeta app - account required)',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Slovakia': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Slovenia': {
 			'eventName': 'EMA',
 			'watchLink': 'https://4d.rtvslo.si/zivo/tvs1',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Spain': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Sweden': {
 			'eventName': 'Melodifestivalen',
 			'watchLink': 'https://www.svtplay.se/melodifestivalen',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["Mello", "Melfest"]
 		},
 		'Switzerland': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Turkey': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["-"]
 		},
 		'Ukraine': {
 			'eventName': 'Vidbir (Natsionalnyi Vidbir na Yevrobachennia)',
 			'watchLink': 'https://www.youtube.com/channel/UCPY6gj8G7dqwPxg9KwHrj5Q',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["Vidbir"]
 		},
 		'United Kingdom': {
 			'eventName': 'Eurovision: You Decide',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final']
+			'stages': ['Night...', 'Final'],
+    		"altEventNames": ["You Decide"]
 		}
 	}
 

@@ -37,6 +37,9 @@ event_suggestions_to_be_saved = []
 
 countries = countries_data.keys()
 nf_names = set(map(lambda d: d['eventName'].lower(), list(countries_data.values())))
+for c in countries_data.values():
+	nf_names = nf_names.union(set(map(lambda e: e.lower(), c['altEventNames'])))
+nf_names.remove("-")
 
 
 def create_story(item):
