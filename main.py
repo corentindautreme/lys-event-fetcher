@@ -94,6 +94,9 @@ def mark_event_suggestion_for_saving(suggested_event):
 
 def get_events_for_story(story, current_datetime):
 	country_data = get_country_data(story.country)
+	if country_data is None:
+		country_data = {'eventName': '-', 'stages': ['Night...', 'Final'], 'watchLink': '-'}
+		print("WARNING: No referential data found for country " + story.country)
 	sentences = story.text.split('.')
 	sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
 	found_dates = []
