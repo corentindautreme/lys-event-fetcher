@@ -191,7 +191,7 @@ def extract_events(event, is_local_env):
 		story = create_story(item)
 		if story.country != "":
 			stories.append(story)
-
+	stories = [Story("Norway", "The final will take place on February 22.", "http://nrk.no")]
 	for story in stories:
 		events_for_story = get_events_for_story(story, datetime.datetime.now())
 		event_suggestions.extend(events_for_story)
