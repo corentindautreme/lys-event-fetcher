@@ -15,7 +15,6 @@ class EventSuggestion():
 		yield 'country', self.country
 		yield 'name', self.name
 		yield 'stage', self.stage
-		# yield 'dateTimesCet', list(map(lambda d: d['date'], self.dateTimesCet))
 		yield 'dateTimesCet', self.dateTimesCet
 		yield 'sourceLink', self.sourceLink
 		yield 'watchLink', self.watchLink

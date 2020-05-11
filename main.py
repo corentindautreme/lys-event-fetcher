@@ -134,7 +134,7 @@ def get_events_for_story(story, current_datetime):
 	found_dates = list(filter(lambda d: d[1].month >= 9 and d[1].month <= 12 or d[1].month <= 3, found_dates))
 	
 	dates = []
-	dates.extend(list(map(lambda d: {'date': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0]}, found_dates)))
+	dates.extend(list(map(lambda d: {'date': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0], 'sentence': sentence}, found_dates)))
 
 	filtered_dates = []
 
@@ -191,7 +191,7 @@ def extract_events(event, is_local_env):
 		story = create_story(item)
 		if story.country != "":
 			stories.append(story)
-	stories = [Story("Norway", "The final will take place on February 22.", "http://nrk.no")]
+
 	for story in stories:
 		events_for_story = get_events_for_story(story, datetime.datetime.now())
 		event_suggestions.extend(events_for_story)
