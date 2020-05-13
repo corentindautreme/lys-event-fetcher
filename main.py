@@ -113,20 +113,18 @@ def get_suggestion_for_story(story, current_datetime):
 			# January 1 & 2 => January 1 and January 2; 1st and 2nd January => 1st January and 2nd January
 			sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \1 \3,', sentence)
 			sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3, \2 \3,', sentence)
-			found_dates.extend(search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or [])
+			found_dates.extend(list(map(lambda found_date: found_date + (sentence,), search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or [])))
 
 	# correcting the years for upcoming dates (post containing "on February 15" in November => February 15 of the next year)
 	# we're only applying this correction if current month >= April (so we don't catch fake positives by mistake, e.g "The semi-final took place on February 8 and...")
 	if current_datetime.month >= 4:
 		for i, date in enumerate(found_dates):
 			if date[1] < current_datetime and date[1].year == current_datetime.year and date[1].month <= 3:
-				found_dates[i] = (date[0], date[1].replace(year=date[1].year+1))
+				found_dates[i] = (date[0], date[1].replace(year=date[1].year+1), date[2])
 
 	# filtering out the false positives
 	# non-dates ("placed 12th in the final", "got 20% of the vote", etc.)
 	found_dates = list(filter(lambda d: is_temporal_sentence(d[0]), found_dates))
-	# years ("in 2019", etc.)
-	found_dates = list(filter(lambda d: re.match(re.compile("[a-z ]*20[0-9]{2}[a-z ]*"), d[0]) == None, found_dates))
 	# too close (like this day next week or such)
 	found_dates = list(filter(lambda d: not(re.match(re.compile("^[a-zA-Z ]+$"), d[0]) != None and d[1].day == current_datetime.day), found_dates))
 	# past dates
@@ -140,7 +138,7 @@ def get_suggestion_for_story(story, current_datetime):
 		return None
 
 	dates = []
-	dates.extend(list(map(lambda d: {'dateTimeCet': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0], 'sentence': sentence}, found_dates)))
+	dates.extend(list(map(lambda d: {'dateTimeCet': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0], 'sentence': d[2]}, found_dates)))
 
 	filtered_dates = []
 
