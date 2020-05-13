@@ -190,8 +190,6 @@ def extract_events(event, is_local_env):
 		if story.country != "":
 			stories.append(story)
 
-	stories = [Story("Sweden", "Melodifestivalen 2021 will again be used to select Sweden's entry to the Eurovision Song Contest. It will take place every Saturday from February 6 to March 13. Sweden was represented by John Lundvik and the song Too Late For Love in 2019 and finished 5th.", "http://svt.se")]
-
 	for story in stories:
 		suggestion = get_suggestion_for_story(story, datetime.datetime.now())
 		if suggestion is not None:
