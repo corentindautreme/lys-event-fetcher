@@ -20,7 +20,7 @@ except ImportError:
 try:
 	dynamodb = boto3.resource('dynamodb')
 	events_table = dynamodb.Table('lys_events')
-	suggested_events_table = dynamodb.Table('lys_suggested_events')
+	suggestions_table = dynamodb.Table('lys_suggested_events')
 	country_ref_table = dynamodb.Table('lys_ref_country')
 
 	ccountries_data = {}
@@ -31,9 +31,9 @@ except NameError:
 	pass
 
 events = []
-suggested_events = []
+suggestions = []
 NEXT_SUGGESTED_EVENT_ID = 0
-event_suggestions_to_be_saved = []
+suggestions_to_be_saved = []
 
 countries = countries_data.keys()
 nf_names = set(map(lambda d: d['eventName'].lower(), list(countries_data.values())))
@@ -76,23 +76,23 @@ def get_country_data(country):
 	return countries_data.get(country)
 
 
-def mark_event_suggestion_for_saving(suggested_event):
+def mark_event_suggestion_for_saving(suggestion):
 	global NEXT_SUGGESTED_EVENT_ID
 
 	# remove dates for which an event with that name already exists in list
-	suggested_event.dateTimesCet = [date for date in suggested_event.dateTimesCet if not any(e['dateTimeCet'][0:10] == date['date'][0:10] and e['name'] == suggested_event.name for e in events)]
+	suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(e['dateTimeCet'][0:10] == date['dateTimeCet'][0:10] and e['name'] == suggestion.name for e in events)]
 	# remove dates for which an event suggestion for that NF was already saved
-	suggested_event.dateTimesCet = [date for date in suggested_event.dateTimesCet if not any(date['date'][0:10] in list(map(lambda d: d[0:10], e['dateTimesCet'])) and e['name'] == suggested_event.name for e in suggested_events)]
+	suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(date['dateTimeCet'][0:10] in list(map(lambda d: d['dateTimeCet'][0:10], s.dateTimesCet)) and s.name == suggestion.name for s in suggestions)]
 	# remove dates for which an event for that NF was already suggested in the current run
-	suggested_event.dateTimesCet = [date for date in suggested_event.dateTimesCet if not any(date['date'][0:10] in list(map(lambda d: d['date'][0:10], e.dateTimesCet)) and e.name == suggested_event.name for e in event_suggestions_to_be_saved)]
+	suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(date['dateTimeCet'][0:10] in list(map(lambda d: d['dateTimeCet'][0:10], s.dateTimesCet)) and s.name == suggestion.name for s in suggestions_to_be_saved)]
 
-	if len(suggested_event.dateTimesCet) > 0:
-		suggested_event.id = NEXT_SUGGESTED_EVENT_ID
+	if len(suggestion.dateTimesCet) > 0:
+		suggestion.id = NEXT_SUGGESTED_EVENT_ID
 		NEXT_SUGGESTED_EVENT_ID += 1
-		event_suggestions_to_be_saved.append(suggested_event)
+		suggestions_to_be_saved.append(suggestion)
 
 
-def get_events_for_story(story, current_datetime):
+def get_suggestion_for_story(story, current_datetime):
 	country_data = get_country_data(story.country)
 	if country_data is None:
 		country_data = {'eventName': '-', 'stages': ['Night...', 'Final'], 'watchLink': '-'}
@@ -136,31 +136,26 @@ def get_events_for_story(story, current_datetime):
 	# before september or beyond march
 	found_dates = list(filter(lambda d: d[1].month >= 9 and d[1].month <= 12 or d[1].month <= 3, found_dates))
 	
+	if len(found_dates) == 0:
+		return None
+
 	dates = []
-	dates.extend(list(map(lambda d: {'date': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0], 'sentence': sentence}, found_dates)))
+	dates.extend(list(map(lambda d: {'dateTimeCet': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0], 'sentence': sentence}, found_dates)))
 
 	filtered_dates = []
 
 	for date in dates:
 		# filtering out duplicates
-		if not any(d['date'] == date['date'] for d in filtered_dates):
+		if not any(d['dateTimeCet'] == date['dateTimeCet'] for d in filtered_dates):
 			filtered_dates.append(date)
-	filtered_dates = sorted(filtered_dates, key=lambda d: d['date'])
-	
-	stages_for_events = generate_event_stages(len(filtered_dates), country_data['stages'], story.country)
-	events_for_story = []
+	filtered_dates = sorted(filtered_dates, key=lambda d: d['dateTimeCet'])
 
-	for i in range(0,len(filtered_dates)):
-		date = filtered_dates[i]
-		event_suggestion = EventSuggestion(story.country, country_data['eventName'], stages_for_events[i], [date], story.sourceLink, country_data['watchLink'])
-		events_for_story.append(event_suggestion)
-
-	return events_for_story
+	return EventSuggestion(story.country, country_data['eventName'], filtered_dates, story.sourceLink, country_data['watchLink'])
 
 
 def extract_events(event, is_local_env):
 	global events
-	global suggested_events
+	global suggestions
 	global NEXT_SUGGESTED_EVENT_ID
 
 	IS_TEST = "isTest" in event or is_local_env
@@ -169,13 +164,13 @@ def extract_events(event, is_local_env):
 	if not is_local_env:
 		events = events_table.scan()['Items']
 
-	suggested_events = []
+	suggestions = []
 	if not is_local_env:
-		suggested_events = suggested_events_table.scan()['Items']
+		suggestions = suggestions_table.scan()['Items']
 
 	NEXT_SUGGESTED_EVENT_ID = 0
 	try:
-		NEXT_SUGGESTED_EVENT_ID = max(e['id'] for e in suggested_events) + 1
+		NEXT_SUGGESTED_EVENT_ID = max(e['id'] for e in suggestions) + 1
 	except ValueError:
 		pass
 
@@ -188,7 +183,7 @@ def extract_events(event, is_local_env):
 	nf_items = get_nf_items_from_xml_items(items, nf_names)
 
 	stories = []
-	event_suggestions = []
+	suggestions = []
 
 	for item in nf_items:
 		story = create_story(item)
@@ -196,22 +191,23 @@ def extract_events(event, is_local_env):
 			stories.append(story)
 
 	for story in stories:
-		events_for_story = get_events_for_story(story, datetime.datetime.now())
-		event_suggestions.extend(events_for_story)
+		suggestion = get_suggestion_for_story(story, datetime.datetime.now())
+		if suggestion is not None:
+			suggestions.append(suggestion)
 
-	print("Extracted events:")
-	for event in event_suggestions:
-		print(event)
-		mark_event_suggestion_for_saving(event)
+	print("Extracted suggestions:")
+	for suggestion in suggestions:
+		print(suggestion)
+		mark_event_suggestion_for_saving(suggestion)
 
-	print("\nSaved event suggestions:")
-	for event in event_suggestions_to_be_saved:
-		print(event.__str__())
+	print("\nSaved suggestions:")
+	for suggestion in suggestions_to_be_saved:
+		print(suggestion.__str__())
 		if(not IS_TEST):
 			try:
-				suggested_events_table.put_item(Item=dict(event))
+				suggestions_table.put_item(Item=dict(suggestion))
 			except Exception as e:
-				print("* Unable to save event " + str(event) + " - Exception is " + str(e))
+				print("* Unable to save suggestion " + str(suggestion) + " - Exception is " + str(e))
 
 
 def main(event, context):

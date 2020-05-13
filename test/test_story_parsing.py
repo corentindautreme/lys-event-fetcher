@@ -3,7 +3,7 @@ import datetime
 import xml.etree.ElementTree as ET
 
 from model.story import Story
-from main import get_events_for_story
+from main import get_suggestion_for_story
 from utils.story_parsing_utils import get_nf_items_from_xml_items
 
 class StoryParsingTest(unittest.TestCase):
@@ -13,10 +13,9 @@ class StoryParsingTest(unittest.TestCase):
 			"Norway will participate in the Eurovision Song Contest 2020. Melodi Grand Prix will again be used to select the country's entrant, with the final taking place on the 15th of February.",
 			"http://link.com"
 		)
-		events = get_events_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
-		self.assertTrue(len(events) == 1)
-		self.assertTrue(len(events[0].dateTimesCet) == 1)
-		date = events[0].dateTimesCet[0]['date']
+		suggestion = get_suggestion_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
+		self.assertTrue(len(suggestion.dateTimesCet) == 1)
+		date = suggestion.dateTimesCet[0]['dateTimeCet']
 		self.assertTrue(date[5:10] == "02-15")
 
 
@@ -26,8 +25,8 @@ class StoryParsingTest(unittest.TestCase):
 			"Jan Då has won Melodifestivalen and will represent Sweden. Sweden will take part in the first semi-final on May 12.",
 			"http://link"
 		)
-		events = get_events_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
-		self.assertTrue(len(events) == 0)
+		suggestion = get_suggestion_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
+		self.assertTrue(suggestion is None)
 
 
 	def test_if_story_contains_some_valid_dates_then_associated_events_should_be_extracted(self):
@@ -36,11 +35,11 @@ class StoryParsingTest(unittest.TestCase):
 			"Estonia will choose their representative through Eesti Laul. The semi-finals will take place on February 8 and 10, and the final on February 22. Estonia will take part in the first semi-final on May 12.",
 			"http://link"
 		)
-		events = get_events_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
-		self.assertTrue(len(events) == 3)
-		self.assertTrue(events[0].dateTimesCet[0]['date'][5:10] == "02-08")
-		self.assertTrue(events[1].dateTimesCet[0]['date'][5:10] == "02-10")
-		self.assertTrue(events[2].dateTimesCet[0]['date'][5:10] == "02-22")
+		suggestion = get_suggestion_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
+		self.assertTrue(len(suggestion.dateTimesCet) == 3)
+		self.assertTrue(suggestion.dateTimesCet[0]['dateTimeCet'][5:10] == "02-08")
+		self.assertTrue(suggestion.dateTimesCet[1]['dateTimeCet'][5:10] == "02-10")
+		self.assertTrue(suggestion.dateTimesCet[2]['dateTimeCet'][5:10] == "02-22")
 
 
 	def test_if_story_contains_numerical_values_that_are_not_dates_these_should_not_be_extracted(self):
@@ -49,9 +48,9 @@ class StoryParsingTest(unittest.TestCase):
 			"Destination Eurovision will take place on the 25th of January. Last year france was represented by Jean D'eau who won Destination Eurovision with 25% of the public vote and 155 points. He finished 16th at Eurovision 2019.",
 			"http://link"
 		)
-		events = get_events_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
-		self.assertTrue(len(events) == 1)
-		self.assertTrue(events[0].dateTimesCet[0]['date'][5:10] == "01-25")
+		suggestion = get_suggestion_for_story(story, datetime.datetime(2020, 9, 1, 0, 0, 0))
+		self.assertTrue(len(suggestion.dateTimesCet) == 1)
+		self.assertTrue(suggestion.dateTimesCet[0]['dateTimeCet'][5:10] == "01-25")
 
 	def test_if_xml_items_include_items_with_national_selection_category_then_should_return_them(self):
 		xml_items = """
