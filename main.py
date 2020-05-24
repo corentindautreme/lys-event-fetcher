@@ -78,7 +78,6 @@ def get_country_data(country):
 
 def mark_event_suggestion_for_saving(suggestion):
 	global NEXT_SUGGESTED_EVENT_ID
-
 	# remove dates for which an event with that name already exists in list
 	suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(e['dateTimeCet'][0:10] == date['dateTimeCet'][0:10] and e['name'] == suggestion.name for e in events)]
 	# remove dates for which an event suggestion for that NF was already saved
@@ -181,7 +180,7 @@ def extract_events(event, is_local_env):
 	nf_items = get_nf_items_from_xml_items(items, nf_names)
 
 	stories = []
-	suggestions = []
+	extracted_suggestions = []
 
 	for item in nf_items:
 		story = create_story(item)
@@ -191,10 +190,10 @@ def extract_events(event, is_local_env):
 	for story in stories:
 		suggestion = get_suggestion_for_story(story, datetime.datetime.now())
 		if suggestion is not None:
-			suggestions.append(suggestion)
+			extracted_suggestions.append(suggestion)
 
 	print("Extracted suggestions:")
-	for suggestion in suggestions:
+	for suggestion in extracted_suggestions:
 		print(suggestion)
 		mark_event_suggestion_for_saving(suggestion)
 
