@@ -83,7 +83,7 @@ def mark_event_suggestion_for_saving(suggestion):
 	# remove dates for which an event suggestion for that NF was already saved
 	suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(date['dateTimeCet'][0:10] in list(map(lambda d: d['dateTimeCet'][0:10], s['dateTimesCet'])) and s.name == suggestion.name for s in suggestions)]
 	# remove dates for which an event for that NF was already suggested in the current run
-	suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(date['dateTimeCet'][0:10] in list(map(lambda d: d['dateTimeCet'][0:10], s['dateTimesCet'])) and s.name == suggestion.name for s in suggestions_to_be_saved)]
+	suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(date['dateTimeCet'][0:10] in list(map(lambda d: d['dateTimeCet'][0:10], s.dateTimesCet)) and s.name == suggestion.name for s in suggestions_to_be_saved)]
 
 	if len(suggestion.dateTimesCet) > 0:
 		suggestion.id = NEXT_SUGGESTED_EVENT_ID
