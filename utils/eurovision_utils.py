@@ -15,13 +15,13 @@ def get_countries_data():
 		'Armenia': {
 			'eventName': 'Depi Evratesil',
 			'watchLink': 'https://www.1tv.am/en/',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Australia': {
 			'eventName': 'Australia Decides',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Austria': {
@@ -39,7 +39,7 @@ def get_countries_data():
 		'Belarus': {
 			'eventName': 'Eurofest',
 			'watchLink': 'https://www.tvr.by/televidenie/belarus-1/',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Belgium': {
@@ -63,7 +63,7 @@ def get_countries_data():
 		'Croatia': {
 			'eventName': 'Dora',
 			'watchLink': 'https://hrti.hrt.hr/live/tv?channel=40013 or HRTi OTT smartphone app - account required',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Cyprus': {
@@ -81,31 +81,31 @@ def get_countries_data():
 		'Denmark': {
 			'eventName': 'Dansk Melodi Grand Prix',
 			'watchLink': 'https://www.dr.dk/tv/live/dr1',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["DMGP"]
 		},
 		'Estonia': {
 			'eventName': 'Eesti Laul',
 			'watchLink': 'otse.err.ee/k/etv',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Finland': {
 			'eventName': 'Uuden Musiikin Kilpailu',
 			'watchLink': 'https://areena.yle.fi/tv/ohjelmat/yle-tv1',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["UMK"]
 		},
 		'France': {
 			'eventName': '-',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Georgia': {
 			'eventName': 'Georgian Idol',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Germany': {
@@ -123,13 +123,13 @@ def get_countries_data():
 		'Hungary': {
 			'eventName': 'A Dal',
 			'watchLink': '-',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Heat...', 'Semi-final 1', 'Semi-final 2', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Iceland': {
 			'eventName': 'Söngvakeppnin',
 			'watchLink': 'https://www.ruv.is/sjonvarp/beint?channel=ruv',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Ireland': {
@@ -153,13 +153,13 @@ def get_countries_data():
 		'Latvia': {
 			'eventName': 'Supernova',
 			'watchLink': 'https://ltv.lsm.lv/lv/tieshraide/ltv1/live.360/',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Lithuania': {
 			'eventName': 'Pabandom iš naujo',
 			'watchLink': 'lrt.lt/mediateka/tiesiogiai/lrt-televizija',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Heat...', 'Semi-final 1', 'Semi-final 2', 'Final'],
     		"altEventNames": ["PiN"]
 		},
 		'Luxembourg': {
@@ -177,7 +177,7 @@ def get_countries_data():
 		'Moldova': {
 			'eventName': 'O melodie pentru Europa',
 			'watchLink': 'http://www.trm.md/ro/moldova-1',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["OMPE"]
 		},
 		'Monaco': {
@@ -225,13 +225,13 @@ def get_countries_data():
 		'Portugal': {
 			'eventName': 'Festival da Canção',
 			'watchLink': 'https://www.rtp.pt/play/direto/rtp1',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["FdC"]
 		},
 		'Romania': {
 			'eventName': 'Selecția Națională',
 			'watchLink': 'https://www.tvrplus.ro/',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Russia': {
@@ -249,7 +249,7 @@ def get_countries_data():
 		'Serbia': {
 			'eventName': 'Beovizija',
 			'watchLink': 'RTS Svet (https://rtsplaneta.rs/linear/16889 or RTS Planeta app - account required)',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["-"]
 		},
 		'Slovakia': {
@@ -273,7 +273,7 @@ def get_countries_data():
 		'Sweden': {
 			'eventName': 'Melodifestivalen',
 			'watchLink': 'https://www.svtplay.se/melodifestivalen',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Heat...', 'Andra Chansen', 'Final'],
     		"altEventNames": ["Mello", "Melfest"]
 		},
 		'Switzerland': {
@@ -291,7 +291,7 @@ def get_countries_data():
 		'Ukraine': {
 			'eventName': 'Vidbir (Natsionalnyi Vidbir na Yevrobachennia)',
 			'watchLink': 'https://www.youtube.com/channel/UCPY6gj8G7dqwPxg9KwHrj5Q',
-			'stages': ['Night...', 'Final'],
+			'stages': ['Semi-final...', 'Final'],
     		"altEventNames": ["Vidbir"]
 		},
 		'United Kingdom': {
