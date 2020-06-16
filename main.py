@@ -33,7 +33,8 @@ def get_dynamo_data():
         suggestions = suggestions_table.scan()['Items']
         for d in country_ref_table.scan()['Items']:
             countries_data[d['country']] = d
-    except NameError:
+    except NameError as e:
+        print(e)
         countries_data = get_countries_data()
         pass
 
