@@ -142,7 +142,7 @@ def get_suggestion_for_saving(suggestion, suggestions_to_be_saved, events, sugge
 def fetch_events(lambda_event, is_local_env):
     IS_TEST = "isTest" in lambda_event or is_local_env
 
-    (events, suggestions, suggestions_table, countries_data) = get_dynamo_data() if not is_local_env else ([], [], get_countries_data())
+    (events, suggestions, suggestions_table, countries_data) = get_dynamo_data() if not is_local_env else ([], [], None, get_countries_data())
     
     countries = countries_data.keys()
     # grouping all nf names and alt names into one unique list of nf names
