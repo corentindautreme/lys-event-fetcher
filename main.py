@@ -33,8 +33,7 @@ def get_dynamo_data():
         suggestions = suggestions_table.scan()['Items']
         for d in country_ref_table.scan()['Items']:
             countries_data[d['country']] = d
-    except NameError as e:
-        print(e)
+    except NameError:
         countries_data = get_countries_data()
         pass
 
@@ -181,6 +180,8 @@ def fetch_events(lambda_event, is_local_env):
         print(suggestion)
         s = get_suggestion_for_saving(suggestion, suggestions_to_be_saved, events, suggestions)
         if s is not None:
+            s.id = seq_suggestion_id
+            seq_suggestion_id += 1
             suggestions_to_be_saved.append(s)
 
     print("\nSaved suggestions:")
