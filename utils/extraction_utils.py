@@ -97,7 +97,7 @@ def check_for_repetition_expression(sentence):
 
             # Find end of cycle
             idx_start = idx_end + min(i for i in [sentence[idx_end:].find(token) for token in ["end", "to", "until", "and"]] if i > -1)
-            idx_end = re.search("( [a-z])|\.|$", sentence[idx_start:]).start()
+            idx_end = re.search(r"( [a-z])|\.|$", sentence[idx_start:]).start()
             end_expression = sentence[idx_start:idx_start+idx_end]
             dates = search_dates(end_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'}) or []
             if len(dates) != 1:
