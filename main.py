@@ -86,14 +86,18 @@ def get_suggestion_for_story(story, current_datetime, country_data):
             found_dates = repetition_dates
             break
         else:
-            # Correcting sentences by adding repetition where needed to make it easier for the date parser:
+            # correcting sentences by adding repetition where needed to make it possible for the date parser to catch all dates:
             # January 1 & 2 => January 1 and January 2; 1st and 2nd January => 1st January and 2nd January
             sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \1 \3,', sentence)
             sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3, \2 \3,', sentence)
-            found_dates.extend(list(map(lambda found_date: found_date + (sentence,), search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or [])))
+            # extracting dates from the sentence (search_dates() returns a list of (context, date) tuples)
+            dates = search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'})
+            # saving dates as a (context, date, sentence) tuple (hence the tuple + (x,) syntax, used to append to an existing tuple)
+            found_dates.extend(list(map(lambda found_date: found_date + (sentence,), dates or [])))
 
     # correcting the years for upcoming dates (post containing "on February 15" in November => February 15 of the next year)
     # we're only applying this correction if current month >= April (so we don't catch fake positives by mistake, e.g "The semi-final took place on February 8 and...")
+    # NB: the dateparser library offers the PREFER_DATES_FROM setting that can take the 'future' value; we're however not using it so we avoid catching the false positives mentioned in the above comment
     if current_datetime.month >= 4:
         for i, date in enumerate(found_dates):
             if date[1] < current_datetime and date[1].year == current_datetime.year and date[1].month <= 3:
