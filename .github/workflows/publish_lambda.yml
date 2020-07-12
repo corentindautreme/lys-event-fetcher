@@ -19,16 +19,16 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        mkdir lib
+        pip install -r requirements.txt --target=lib/
     - name: Test
       run: |
         pip install pytest
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/lib
         pytest test/
     - name: Package
       if: success()
       run: |
-        mkdir lib
-        pip install -r requirements.txt --target=lib/
         zip -ur lys_event_fetcher.zip model/ utils/ main.py
         cd lib
         zip -ur ../lys_event_fetcher.zip *
