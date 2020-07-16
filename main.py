@@ -79,6 +79,10 @@ def get_suggestion_for_story(story, current_datetime, country_data):
     found_dates = []
 
     for sentence in sentences:
+        # correcting sentences by adding repetition where needed to make it possible for the date parser to catch all dates:
+        # January 1 and 2 => January 1 and January 2; 1st and 2nd January => 1st January and 2nd January
+        sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2 and \1 \3,', sentence)
+        sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3 and \2 \3,', sentence)
         sentence_events = []
         repetition_dates = check_for_repetition_expression(sentence)
 
@@ -86,10 +90,10 @@ def get_suggestion_for_story(story, current_datetime, country_data):
             found_dates = repetition_dates
             break
         else:
-            # correcting sentences by adding repetition where needed to make it possible for the date parser to catch all dates:
-            # January 1 & 2 => January 1 and January 2; 1st and 2nd January => 1st January and 2nd January
-            sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \1 \3,', sentence)
-            sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3, \2 \3,', sentence)
+            # re-correcting sentences by replacing the 'and' between 2 dates by a comma, otherwise the dateparser somehow fails to see them
+            # January 1 and January 2 => January 1, January 2; 1st January and 2nd January => 1st January, 2nd January
+            sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and (January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \3 \4,', sentence)
+            sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \2, \3 \4,', sentence)
             # extracting dates from the sentence (search_dates() returns a list of (context, date) tuples)
             dates = search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'})
             # saving dates as a (context, date, sentence) tuple (hence the tuple + (x,) syntax, used to append to an existing tuple)

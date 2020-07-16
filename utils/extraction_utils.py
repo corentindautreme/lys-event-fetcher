@@ -7,9 +7,12 @@ from model.event_suggestion import EventSuggestion
 
 
 def check_for_repetition_expression(sentence):
+    if not any(char.isdigit() for char in sentence):
+        # no number in the sentence = no full date in the sentence, no need to go any further
+        return []
     start_every_end_pattern = ".*(start|begin).*(every|each).*(until|end|finish)"
     every_from_to_pattern = ".*(every|each).*(start|from|between|begin).*(end|to|until|and).*"
-    from_to_every_pattern = ".*(from|between).*(to|until|and).*(every|each).*"
+    from_to_every_pattern = ".*(from|between).*(to|until|and).*((every|each).*)*"
 
     start_every_end = re.compile(start_every_end_pattern)
     every_from_to = re.compile(every_from_to_pattern)
@@ -138,6 +141,7 @@ def check_for_repetition_expression(sentence):
 
     elif re.match(from_to_every, sentence) != None:
         try:
+            contains_frequency = any(token in sentence for token in ["each", "every"])
             # Find beginning of cycle
             idx_start = min(i for i in [sentence.find(token) for token in ["from", "between"]] if i > -1)
             idx_end = idx_start + min(i for i in [sentence[idx_start:].find(token) for token in ["to", "until", "and"]] if i > -1)
@@ -150,8 +154,11 @@ def check_for_repetition_expression(sentence):
 
             # Find end of cycle
             idx_start = idx_end + min(i for i in [sentence[idx_end:].find(token) for token in ["to", "until", "and"]] if i > -1)
-            idx_end = min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)
-            end_expression = sentence[idx_start:idx_end]
+            if contains_frequency:
+                idx_end = min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)
+                end_expression = sentence[idx_start:idx_end]
+            else:
+                end_expression = sentence[idx_start:]
 
             dates = search_dates(end_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'}) or []
             if len(dates) != 1:
@@ -160,10 +167,14 @@ def check_for_repetition_expression(sentence):
                 end_date = dates[0][1]
 
             # Determine frequency
-            idx_freq_token = min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)
-            idx_start = sentence.find(' ', idx_freq_token) + 1
-            # frequency = sentence[idx_start:].replace(' ', '').replace(',', '').replace('.', '')
-            frequency = re.sub(re.compile('[^a-zA-Z]'), '', sentence[idx_start:])
+            if contains_frequency:
+                idx_freq_token = min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)
+                idx_start = sentence.find(' ', idx_freq_token) + 1
+                # frequency = sentence[idx_start:].replace(' ', '').replace(',', '').replace('.', '')
+                frequency = re.sub(re.compile('[^a-zA-Z]'), '', sentence[idx_start:])
+            else:
+                # if no frequency expression, default to one event per night
+                frequency = "night"
 
             if len(frequency.split(' ')) > 1:
                 # TODO uncovered use case: longer frequency expression or unrecognized
@@ -185,6 +196,9 @@ def check_for_repetition_expression(sentence):
                 event_dates.append((sentence, it_date, sentence))
                 return event_dates
             elif frequency in ["day", "night", "evening"]:
+                if end_date - begin_date > datetime.timedelta(days=14):
+                    # the NF happens daily for more than 14 consecutive days - that seems unlikely
+                    return []
                 it_date = begin_date
                 i = 1
                 while it_date < end_date:

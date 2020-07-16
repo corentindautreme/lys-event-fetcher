@@ -67,3 +67,18 @@ class ExtractionUtilsTest(unittest.TestCase):
         self.assertTrue(events[3][1].strftime("%Y-%m-%d")[5:] == "01-30")
         self.assertTrue(events[4][1].strftime("%Y-%m-%d")[5:] == "02-06")
         self.assertTrue(events[5][1].strftime("%Y-%m-%d")[5:] == "02-13")
+
+    def test_if_from_to_expression_without_frequency_token_then_should_default_to_daily_and_extract_all_events(self):
+        sentence = "Sanremo 2021 will take place between February 4 and February 8."
+        events = check_for_repetition_expression(sentence)
+        self.assertTrue(len(events) == 5)
+        self.assertTrue(events[0][1].strftime("%Y-%m-%d")[5:] == '02-04')
+        self.assertTrue(events[1][1].strftime("%Y-%m-%d")[5:] == '02-05')
+        self.assertTrue(events[2][1].strftime("%Y-%m-%d")[5:] == '02-06')
+        self.assertTrue(events[3][1].strftime("%Y-%m-%d")[5:] == '02-07')
+        self.assertTrue(events[4][1].strftime("%Y-%m-%d")[5:] == '02-08')
+
+    def test_if_from_to_expression_without_frequency_token_then_should_default_to_daily_but_find_that_the_interval_is_too_large_and_extract_no_event(self):
+        sentence = "Sanremo 2021 will take place between February 4 and March 28."
+        events = check_for_repetition_expression(sentence)
+        self.assertTrue(len(events) == 0)
