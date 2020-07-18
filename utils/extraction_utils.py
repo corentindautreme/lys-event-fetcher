@@ -38,13 +38,14 @@ def check_for_repetition_expression(sentence):
 
             # Find end of cycle
             idx_start = min(i for i in [sentence.find(token) for token in ["until", "end", "finish"]] if i > -1)
-            end_expression = sentence[idx_start:]
+            idx_end = re.search(r"( [a-z])|\.|$", sentence[idx_start:]).start()
+            end_expression = sentence[idx_start:idx_start+idx_end]
             dates = search_dates(end_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'}) or []
             if len(dates) != 1:
                 return []
             else:
                 end_date = dates[0][1]
-            idx_end_repetition_expression = len(sentence) - 1
+            idx_end_repetition_expression = idx_start + idx_end
 
             # Determine frequency
             idx_start = sentence.find(' ', min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)) + 1
@@ -180,12 +181,13 @@ def check_for_repetition_expression(sentence):
             if contains_frequency:
                 idx_freq_token = min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)
                 idx_start = sentence.find(' ', idx_freq_token) + 1
-                # frequency = sentence[idx_start:].replace(' ', '').replace(',', '').replace('.', '')
-                frequency = re.sub(re.compile('[^a-zA-Z]'), '', sentence[idx_start:])
+                idx_end = re.search(r'[^a-zA-Z]|$', sentence[idx_start:]).start()
+                frequency = sentence[idx_start:idx_start+idx_end]
+                idx_end_repetition_expression = idx_start + idx_end
             else:
                 # if no frequency expression, default to one event per night
                 frequency = "night"
-            idx_end_repetition_expression = len(sentence) - 1
+                idx_end_repetition_expression = len(sentence)
 
             context = sentence[idx_start_repetition_expression:idx_end_repetition_expression]
 
