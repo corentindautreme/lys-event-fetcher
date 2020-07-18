@@ -1,5 +1,6 @@
 import datetime
 import re
+import traceback
 from dateparser.search import search_dates
 
 from utils.time_utils import is_day_of_week
@@ -84,6 +85,7 @@ def check_for_repetition_expression(sentence):
                 return event_dates
         except Exception as e:
             print("Error parsing repetition expression \"" + sentence + "\" against pattern \"" + start_every_end_pattern + "\" - Exception is: " + str(e))
+            traceback.print_exc()
 
 
     elif re.match(every_from_to, sentence) != None:
@@ -148,6 +150,7 @@ def check_for_repetition_expression(sentence):
                 return event_dates
         except Exception as e:
             print("Error parsing repetition expression \"" + sentence + "\" against pattern \"" + every_from_to_pattern + "\" - Exception is: " + str(e))
+            traceback.print_exc()
 
     elif re.match(from_to_every, sentence) != None:
         try:
@@ -224,5 +227,6 @@ def check_for_repetition_expression(sentence):
                 return event_dates
         except Exception as e:
             print("Error parsing repetition expression \"" + sentence + "\" against pattern \"" + from_to_every_pattern + "\" - Exception is: " + str(e))
+            traceback.print_exc()
 
     return []
