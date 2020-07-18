@@ -91,8 +91,8 @@ def check_for_repetition_expression(sentence):
             # Determine frequency
             idx_freq_token = min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)
             idx_start = sentence.find(' ', idx_freq_token) + 1
-            idx_end = min(i for i in [sentence.find(token) for token in ["start", "between", "from", "begin"]] if i > -1) - 1
-            frequency = re.sub(re.compile('[^a-zA-Z]'), '', sentence[idx_start:idx_end])
+            idx_end = re.search(r'[^a-zA-Z]', sentence[idx_start:]).start()
+            frequency = sentence[idx_start:idx_start+idx_end]
             idx_start_repetition_expression = idx_freq_token
 
             # Find beginning of cycle
