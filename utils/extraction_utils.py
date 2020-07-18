@@ -34,6 +34,7 @@ def check_for_repetition_expression(sentence):
                 return []
             else:
                 begin_date = dates[0][1]
+            idx_start_repetition_expression = idx_start
 
             # Find end of cycle
             idx_start = min(i for i in [sentence.find(token) for token in ["until", "end", "finish"]] if i > -1)
@@ -43,6 +44,7 @@ def check_for_repetition_expression(sentence):
                 return []
             else:
                 end_date = dates[0][1]
+            idx_end_repetition_expression = len(sentence) - 1
 
             # Determine frequency
             idx_start = sentence.find(' ', min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)) + 1
@@ -51,6 +53,9 @@ def check_for_repetition_expression(sentence):
             if len(frequency.split(' ')) > 1:
                 # TODO uncovered use case: longer frequency expression or unrecognized
                 return []
+            
+            context = sentence[idx_start_repetition_expression:idx_end_repetition_expression]
+
             if is_day_of_week(frequency):
                 # happening every specified weekday between begin and end date
                 it_date = begin_date
@@ -62,19 +67,19 @@ def check_for_repetition_expression(sentence):
 
                 i = 1
                 while it_date < end_date:
-                    event_dates.append((sentence, it_date, sentence))
+                    event_dates.append((context, it_date, sentence))
                     it_date += datetime.timedelta(days=7)
                     i += 1
-                event_dates.append((sentence, it_date, sentence))
+                event_dates.append((context, it_date, sentence))
                 return event_dates
             elif frequency in ["day", "night", "evening"]:
                 it_date = begin_date
                 i = 1
                 while it_date < end_date:
-                    event_dates.append((sentence, it_date, sentence))
+                    event_dates.append((context, it_date, sentence))
                     it_date += datetime.timedelta(days=1)
                     i += 1
-                event_dates.append((sentence, it_date, sentence))
+                event_dates.append((context, it_date, sentence))
                 return event_dates
         except Exception as e:
             print("Error parsing repetition expression \"" + sentence + "\" against pattern \"" + start_every_end_pattern + "\" - Exception is: " + str(e))
@@ -87,6 +92,7 @@ def check_for_repetition_expression(sentence):
             idx_start = sentence.find(' ', idx_freq_token) + 1
             idx_end = min(i for i in [sentence.find(token) for token in ["start", "between", "from", "begin"]] if i > -1) - 1
             frequency = re.sub(re.compile('[^a-zA-Z]'), '', sentence[idx_start:idx_end])
+            idx_start_repetition_expression = idx_freq_token
 
             # Find beginning of cycle
             idx_start = min(i for i in [sentence.find(token) for token in ["start", "between", "from", "begin"]] if i > -1)
@@ -107,6 +113,9 @@ def check_for_repetition_expression(sentence):
                 return []
             else:
                 end_date = dates[0][1]
+            idx_end_repetition_expression = idx_start + idx_end
+
+            context = sentence[idx_start_repetition_expression:idx_end_repetition_expression]
             
             if len(frequency.split(' ')) > 1:
                 # TODO uncovered use case: longer frequency expression or unrecognized
@@ -122,19 +131,19 @@ def check_for_repetition_expression(sentence):
 
                 i = 1
                 while it_date < end_date:
-                    event_dates.append((sentence, it_date, sentence))
+                    event_dates.append((context, it_date, sentence))
                     it_date += datetime.timedelta(days=7)
                     i += 1
-                event_dates.append((sentence, it_date, sentence))
+                event_dates.append((context, it_date, sentence))
                 return event_dates
             elif frequency in ["day", "night", "evening"]:
                 it_date = begin_date
                 i = 1
                 while it_date < end_date:
-                    event_dates.append((sentence, it_date, sentence))
+                    event_dates.append((context, it_date, sentence))
                     it_date += datetime.timedelta(days=1)
                     i += 1
-                event_dates.append((sentence, it_date, sentence))
+                event_dates.append((context, it_date, sentence))
                 return event_dates
         except Exception as e:
             print("Error parsing repetition expression \"" + sentence + "\" against pattern \"" + every_from_to_pattern + "\" - Exception is: " + str(e))
@@ -151,6 +160,7 @@ def check_for_repetition_expression(sentence):
                 return []
             else:
                 begin_date = dates[0][1]
+            idx_start_repetition_expression = idx_start
 
             # Find end of cycle
             idx_start = idx_end + min(i for i in [sentence[idx_end:].find(token) for token in ["to", "until", "and"]] if i > -1)
@@ -175,6 +185,9 @@ def check_for_repetition_expression(sentence):
             else:
                 # if no frequency expression, default to one event per night
                 frequency = "night"
+            idx_end_repetition_expression = len(sentence) - 1
+
+            context = sentence[idx_start_repetition_expression:idx_end_repetition_expression]
 
             if len(frequency.split(' ')) > 1:
                 # TODO uncovered use case: longer frequency expression or unrecognized
@@ -190,10 +203,10 @@ def check_for_repetition_expression(sentence):
 
                 i = 1
                 while it_date < end_date:
-                    event_dates.append((sentence, it_date, sentence))
+                    event_dates.append((context, it_date, sentence))
                     it_date += datetime.timedelta(days=7)
                     i += 1
-                event_dates.append((sentence, it_date, sentence))
+                event_dates.append((context, it_date, sentence))
                 return event_dates
             elif frequency in ["day", "night", "evening"]:
                 if end_date - begin_date > datetime.timedelta(days=14):
@@ -202,10 +215,10 @@ def check_for_repetition_expression(sentence):
                 it_date = begin_date
                 i = 1
                 while it_date < end_date:
-                    event_dates.append((sentence, it_date, sentence))
+                    event_dates.append((context, it_date, sentence))
                     it_date += datetime.timedelta(days=1)
                     i += 1
-                event_dates.append((sentence, it_date, sentence))
+                event_dates.append((context, it_date, sentence))
                 return event_dates
         except Exception as e:
             print("Error parsing repetition expression \"" + sentence + "\" against pattern \"" + from_to_every_pattern + "\" - Exception is: " + str(e))
