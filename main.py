@@ -3,6 +3,7 @@ import datetime
 import requests
 import re
 import string
+import json
 from dateparser.search import search_dates
 
 from model.story import Story
@@ -185,7 +186,7 @@ def fetch_events(lambda_event, is_local_env):
 
     print("Extracted suggestions:")
     for suggestion in extracted_suggestions:
-        print(suggestion)
+        print(json.dumps(dict(suggestion)))
         s = get_suggestion_for_saving(suggestion, suggestions_to_be_saved, events, suggestions)
         if s is not None:
             s.id = seq_suggestion_id
@@ -194,7 +195,7 @@ def fetch_events(lambda_event, is_local_env):
 
     print("\nSaved suggestions:")
     for suggestion in suggestions_to_be_saved:
-        print(suggestion.__str__())
+        print(json.dumps(dict(suggestion)))
         if(not IS_TEST):
             try:
                 suggestions_table.put_item(Item=dict(suggestion))
