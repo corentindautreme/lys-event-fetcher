@@ -211,10 +211,11 @@ def fetch_events(lambda_event, is_local_env):
                 ouput += "* Unable to save suggestion " + str(suggestion) + " - Exception is " + str(e) + "\n"
 
     print(output)
+    return output
 
 
 def main(event, context):
-    fetch_events(lambda_event=event, is_local_env=False)
+    return fetch_events(lambda_event=event, is_local_env=False)
 
 
 if __name__ == '__main__':
