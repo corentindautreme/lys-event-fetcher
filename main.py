@@ -4,6 +4,7 @@ import requests
 import re
 import string
 import json
+import traceback
 from dateparser.search import search_dates
 
 from model.story import Story
@@ -151,56 +152,65 @@ def get_suggestion_for_saving(suggestion, suggestions_to_be_saved, events, sugge
 def fetch_events(lambda_event, is_local_env):
     IS_TEST = "isTest" in lambda_event or is_local_env
 
-    (events, suggestions, suggestions_table, countries_data) = get_dynamo_data() if not is_local_env else ([], [], None, get_countries_data())
-    
-    countries = countries_data.keys()
-    # grouping all nf names and alt names into one unique list of nf names
-    nf_name_list = map(lambda d: [d['eventName']] + d['altEventNames'], list(countries_data.values()))
-    nf_names = set([nf_name.lower() for name_list in nf_name_list for nf_name in name_list])
-
-    seq_suggestion_id = 0
     try:
-        seq_suggestion_id = max(e['id'] for e in suggestions) + 1
-    except ValueError: pass
+        (events, suggestions, suggestions_table, countries_data) = get_dynamo_data() if not is_local_env else ([], [], None, get_countries_data())
+        
+        countries = countries_data.keys()
+        # grouping all nf names and alt names into one unique list of nf names
+        nf_name_list = map(lambda d: [d['eventName']] + d['altEventNames'], list(countries_data.values()))
+        nf_names = set([nf_name.lower() for name_list in nf_name_list for nf_name in name_list])
 
-    source = "https://eurovoix.com/feed/"
-    xml = requests.get(source).content
-    root = ET.fromstring(xml)
-    items = root.find('channel').findall('item')
+        seq_suggestion_id = 0
+        try:
+            seq_suggestion_id = max(e['id'] for e in suggestions) + 1
+        except ValueError: pass
 
-    nf_items = get_nf_items_from_xml_items(items, nf_names)
+        source = "https://eurovoix.com/feed/"
+        xml = requests.get(source).content
+        root = ET.fromstring(xml)
+        items = root.find('channel').findall('item')
 
-    stories = []
-    extracted_suggestions = []
-    suggestions_to_be_saved = []
+        nf_items = get_nf_items_from_xml_items(items, nf_names)
 
-    for item in nf_items:
-        story = create_story(item, countries)
-        if story.country != "":
-            stories.append(story)
+        stories = []
+        extracted_suggestions = []
+        suggestions_to_be_saved = []
 
-    for story in stories:
-        suggestion = get_suggestion_for_story(story, current_datetime=datetime.datetime.now(), country_data=countries_data[story.country])
-        if suggestion is not None:
-            extracted_suggestions.append(suggestion)
+        for item in nf_items:
+            story = create_story(item, countries)
+            if story.country != "":
+                stories.append(story)
 
-    print("Extracted suggestions:")
+        for story in stories:
+            suggestion = get_suggestion_for_story(story, current_datetime=datetime.datetime.now(), country_data=countries_data[story.country])
+            if suggestion is not None:
+                extracted_suggestions.append(suggestion)
+    except Exception as e:
+        output = traceback.format_exc()
+        print(output)
+        return output
+
+    output = ""
+
+    output += "Extracted suggestions:\n"
     for suggestion in extracted_suggestions:
-        print(json.dumps(dict(suggestion)))
+        output += json.dumps(dict(suggestion)) + "\n"
         s = get_suggestion_for_saving(suggestion, suggestions_to_be_saved, events, suggestions)
         if s is not None:
             s.id = seq_suggestion_id
             seq_suggestion_id += 1
             suggestions_to_be_saved.append(s)
 
-    print("\nSaved suggestions:")
+    output += "\nSaved suggestions:\n"
     for suggestion in suggestions_to_be_saved:
-        print(json.dumps(dict(suggestion)))
+        output += json.dumps(dict(suggestion)) + "\n"
         if(not IS_TEST):
             try:
                 suggestions_table.put_item(Item=dict(suggestion))
             except Exception as e:
-                print("* Unable to save suggestion " + str(suggestion) + " - Exception is " + str(e))
+                ouput += "* Unable to save suggestion " + str(suggestion) + " - Exception is " + str(e) + "\n"
+
+    print(output)
 
 
 def main(event, context):
