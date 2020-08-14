@@ -5,6 +5,7 @@ import re
 import string
 import json
 import traceback
+import unicodedata
 from dateparser.search import search_dates
 
 from model.story import Story
@@ -197,7 +198,7 @@ def fetch_events(lambda_event, is_local_env):
         output += json.dumps(dict(suggestion)) + "\n"
         s = get_suggestion_for_saving(suggestion, suggestions_to_be_saved, events, suggestions)
         if s is not None:
-            s.id = seq_suggestion_id
+            s.id = int(seq_suggestion_id)
             seq_suggestion_id += 1
             suggestions_to_be_saved.append(s)
 
