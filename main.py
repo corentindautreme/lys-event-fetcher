@@ -5,7 +5,6 @@ import re
 import string
 import json
 import traceback
-import unicodedata
 from dateparser.search import search_dates
 
 from model.story import Story
