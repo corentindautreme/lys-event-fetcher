@@ -10,7 +10,7 @@ from dateparser.search import search_dates
 from model.story import Story
 from model.event_suggestion import EventSuggestion
 from utils.eurovision_utils import get_countries_data, generate_event_stages
-from utils.time_utils import is_temporal_sentence, is_day_of_week
+from utils.time_utils import is_temporal_sentence, is_day_of_week, correct_typos
 from utils.extraction_utils import check_for_repetition_expression
 from utils.story_parsing_utils import get_nf_items_from_xml_items
 
@@ -77,14 +77,19 @@ def get_suggestion_for_story(story, current_datetime, country_data):
         country_data = {'eventName': '-', 'stages': ['Night...', 'Final'], 'watchLink': '-'}
         print("WARNING: No referential data found for country " + story.country)
     sentences = story.text.split('.')
-    sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
+    # sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
     found_dates = []
 
     for sentence in sentences:
+        sentence = sentence.lower().strip()
+        if not is_temporal_sentence(sentence):
+            sentence = correct_typos(sentence)
+            if not is_temporal_sentence(sentence):
+                continue
         # correcting sentences by adding repetition where needed to make it possible for the date parser to catch all dates:
         # January 1 and 2 => January 1 and January 2; 1st and 2nd January => 1st January and 2nd January
-        sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2 and \1 \3,', sentence)
-        sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3 and \2 \3,', sentence)
+        sentence = re.sub(re.compile('(january|february|march|april|may|june|july|august|september|october|november|december) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2 and \1 \3,', sentence)
+        sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (january|february|march|april|may|june|july|august|september|october|november|december)'), r'\1 \3 and \2 \3,', sentence)
         sentence_events = []
         repetition_dates = check_for_repetition_expression(sentence)
 
@@ -94,8 +99,8 @@ def get_suggestion_for_story(story, current_datetime, country_data):
         else:
             # re-correcting sentences by replacing the 'and' between 2 dates by a comma, otherwise the dateparser somehow fails to see them
             # January 1 and January 2 => January 1, January 2; 1st January and 2nd January => 1st January, 2nd January
-            sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and (January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \3 \4,', sentence)
-            sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \2, \3 \4,', sentence)
+            sentence = re.sub(re.compile('(january|february|march|april|may|june|july|august|september|october|november|december) ([0-9]+(?:st|nd|rd|th)*) and (january|february|march|april|may|june|july|august|september|october|november|december) ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \3 \4', sentence)
+            sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) (january|february|march|april|may|june|july|august|september|october|november|december) and ([0-9]+(?:st|nd|rd|th)*) (january|february|march|april|may|june|july|august|september|october|november|december)'), r'\1 \2, \3 \4', sentence)
             # extracting dates from the sentence (search_dates() returns a list of (context, date) tuples)
             dates = search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'})
             # saving dates as a (context, date, sentence) tuple (hence the tuple + (x,) syntax, used to append to an existing tuple)
