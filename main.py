@@ -122,8 +122,8 @@ def get_suggestion_for_story(story, current_datetime, country_data):
     found_dates = list(filter(lambda d: not(re.match(re.compile("^[a-zA-Z ]+$"), d[0]) != None and d[1].day == current_datetime.day), found_dates))
     # past dates
     found_dates = list(filter(lambda d: d[1] > current_datetime, found_dates))
-    # beyond 2 years in the future
-    found_dates = list(filter(lambda d: d[1].year <= current_datetime.year + 2, found_dates))
+    # beyond 1 year in the future
+    found_dates = list(filter(lambda d: d[1].year <= current_datetime.year + 1, found_dates))
     # before september or beyond march
     found_dates = list(filter(lambda d: d[1].month >= 9 and d[1].month <= 12 or d[1].month <= 3, found_dates))
     
