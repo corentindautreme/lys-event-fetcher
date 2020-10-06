@@ -5,6 +5,7 @@ import re
 import string
 import json
 import traceback
+import unidecode
 from dateparser.search import search_dates
 
 from model.story import Story
@@ -67,9 +68,7 @@ def create_story(item, countries):
     except ValueError:
         pass
     content = re.sub(re.compile('<.*?>'), '', content)
-    # content = re.sub(re.compile(r"\\x[a-z0-9]+"), '', content)
-    content = content.replace("&#8211;", "-")
-    content = re.sub(re.compile(r"&#[0-9]+;"), '-', content)
+    content = re.sub(re.compile(r"&#([0-9]+);"), lambda c: unidecode.unidecode(chr(int(c.group(1)))), content)
     return Story(country, content, item.find('link').text)
 
 
