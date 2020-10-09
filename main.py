@@ -102,17 +102,22 @@ def get_suggestion_for_story(story, current_datetime, country_data):
             sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and (January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \3 \4', sentence)
             sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \2, \3 \4', sentence)
             # extracting dates from the sentence (search_dates() returns a list of (context, date) tuples)
-            dates = search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last', 'PREFER_DATES_FROM': 'future'})
+            dates = search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'})
             # saving dates as a (context, date, sentence) tuple (hence the tuple + (x,) syntax, used to append to an existing tuple)
             found_dates.extend(list(map(lambda found_date: found_date + (sentence,), dates or [])))
 
     # correcting the years for upcoming dates (post containing "on February 15" in November => February 15 of the next year)
     # we're only applying this correction if current month >= April (so we don't catch fake positives by mistake, e.g "The semi-final took place on February 8 and...")
-    # NB: we use dateparser's PREFER_DATES_FROM setting, which should in theory prevent the need for such hacks; but in some cases the parser isn't accurate and such occurrences slip through
     if current_datetime.month >= 4:
         for i, date in enumerate(found_dates):
             if date[1] < current_datetime and date[1].year == current_datetime.year and date[1].month <= 3:
-                found_dates[i] = (date[0], date[1].replace(year=date[1].year+1), date[2])
+                try:
+                    found_dates[i] = (date[0], date[1].replace(year=date[1].year+1), date[2])
+                except ValueError:
+                    # Use case example: (Feb 29 2020).replace(year=2021) => ValueError: day is out of range for month
+                    # That should be unlikely for actual NF dates, it most likely is a reference to a past date (which we don't really care about)
+                    # Altenative could be to replace by first day of next month
+                    print("* Warning: invalid future date " + date[1].strftime("%{}-%m-%d").format(date[1].year+1) + " (probably a reference to a past date that exists for its year?")
 
     # filtering out the false positives
     # non-dates ("placed 12th in the final", "got 20% of the vote", etc.)
