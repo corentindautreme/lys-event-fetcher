@@ -104,14 +104,13 @@ class StoryParsingTest(unittest.TestCase):
         }
         story = Story("Sweden", ".The dates and cities for the 2020 edition of Melodifestivalen have been revealed..Swedish broadcaster SVT has confirmed the dates of Melodifestivalen 2020, starting in Linköping on February 6th, and ending in Stockholm on March 13th. Tickets for all six shows will be released at 9am on October 31st..The dates are as follows:..Semi-Final 1 (Linköping) – February 6th.Semi-Final 2 (Gothenburg) – February 13th.Semi-Final 3 (Luleå) – February 20th.Semi-Final 4 (Malmö) – February 27th.Andra Chansen (Eskilstuna) – March 6th.Final (Stockholm) – March 13th....Amanda Aasa is the first artist to be revealed as participating in Melodifestivalen 2020, as she was selected by a jury through the competition P4 Nästa. Amanda will have to participate in Melodifestivalen with a different entry, as her P4 Nästa entry was released before September 1, which makes it ineligible for Eurovision..A total of 28 artists will compete in the 2020 edition of Melodifestivalen.&nbsp;This year marks the 60th anniversary of the show, and the SVT has promised that it will be “extraordinary”..Sweden finished 6th at the Grand Final of the Eurovision Song Contest 2019 in Tel Aviv, Israel. Sweden was represented by John Lundvik with the song “Too Late For Love”, and came second in the jury voting with 241 points, but came 9th in the televote with 93 points..", "https://eurovoix.com")
         suggestion = get_suggestion_for_story(story, current_datetime=datetime.datetime(2020, 9, 1, 0, 0, 0), country_data=country_data)
-        self.assertTrue(len(suggestion.dateTimesCet) == 7)
+        self.assertTrue(len(suggestion.dateTimesCet) == 6)
         self.assertTrue(suggestion.dateTimesCet[0]['dateTimeCet'][5:10] == "02-06")
         self.assertTrue(suggestion.dateTimesCet[1]['dateTimeCet'][5:10] == "02-13")
         self.assertTrue(suggestion.dateTimesCet[2]['dateTimeCet'][5:10] == "02-20")
         self.assertTrue(suggestion.dateTimesCet[3]['dateTimeCet'][5:10] == "02-27")
         self.assertTrue(suggestion.dateTimesCet[4]['dateTimeCet'][5:10] == "03-06")
         self.assertTrue(suggestion.dateTimesCet[5]['dateTimeCet'][5:10] == "03-13")
-        self.assertTrue(suggestion.dateTimesCet[6]['dateTimeCet'][5:10] == "09-01")
 
 
     def test_full_article_non_regression_testing_2(self):
