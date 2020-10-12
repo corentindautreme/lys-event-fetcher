@@ -31,6 +31,20 @@ class ExtractionUtilsTest(unittest.TestCase):
         self.assertTrue(events[0][0] == events[1][0] == events[2][0] == events[3][0] == events[4][0] == events[5][0])
         self.assertTrue(events[0][0] == "start on February 6 and run every Saturday until March 13")
 
+    def test_if_yet_another_start_every_end_expression_then_should_extract_all_events(self):
+        sentence = "The Norwegian selection will commence on January 16th and run for six weeks culminating in the Grand Final on February 20"
+        events = check_for_repetition_expression(sentence)
+        self.assertTrue(len(events) == 6)
+        self.assertTrue(events[0][1].strftime("%Y-%m-%d")[5:] == "01-16")
+        self.assertTrue(events[1][1].strftime("%Y-%m-%d")[5:] == "01-23")
+        self.assertTrue(events[2][1].strftime("%Y-%m-%d")[5:] == "01-30")
+        self.assertTrue(events[3][1].strftime("%Y-%m-%d")[5:] == "02-06")
+        self.assertTrue(events[4][1].strftime("%Y-%m-%d")[5:] == "02-13")
+        self.assertTrue(events[5][1].strftime("%Y-%m-%d")[5:] == "02-20")
+        # verify context
+        self.assertTrue(events[0][0] == events[1][0] == events[2][0] == events[3][0] == events[4][0] == events[5][0])
+        self.assertTrue(events[0][0] == "commence on January 16th and run for six weeks culminating in the Grand Final on February 20")
+
     def test_if_every_from_to_expression_then_should_extract_all_events(self):
         sentence = "Sanremo will run every night on RAI1 from February 4 to February 8"
         events = check_for_repetition_expression(sentence)

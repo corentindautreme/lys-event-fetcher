@@ -11,7 +11,7 @@ def check_for_repetition_expression(sentence):
     if not any(char.isdigit() for char in sentence):
         # no number in the sentence = no full date in the sentence, no need to go any further
         return []
-    start_every_end_pattern = ".*(start|begin).*(every|each).*(until|end|finish)"
+    start_every_end_pattern = ".*(start|begin|commence|commencing).*(every|each|for ([1-9]|one|two|three|four|five|six|seven|eight|nine) weeks).*(until|end|finish|culminate|culminating).*"
     every_from_to_pattern = ".*(every|each).*(start|from|between|begin).*(end|to|until|and).*"
     from_to_every_pattern = ".*(from|between).*(to|until|and).*((every|each).*)*"
 
@@ -27,8 +27,8 @@ def check_for_repetition_expression(sentence):
     if re.match(start_every_end, sentence) != None:
         try:
             # Find beginning of cycle
-            idx_start = min(i for i in [sentence.find(token) for token in ["start", "begin"]] if i > -1)
-            idx_end = min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)
+            idx_start = min(i for i in [sentence.find(token) for token in ["start", "begin", "commence", "commencing"]] if i > -1)
+            idx_end = min(i for i in [sentence.find(token) for token in ["every", "each", "for"]] if i > -1)
             begin_expression = sentence[idx_start:idx_end]
             dates = search_dates(begin_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'}) or []
             if len(dates) != 1:
@@ -38,8 +38,8 @@ def check_for_repetition_expression(sentence):
             idx_start_repetition_expression = idx_start
 
             # Find end of cycle
-            idx_start = min(i for i in [sentence.find(token) for token in ["until", "end", "finish"]] if i > -1)
-            idx_end = re.search(r"( [a-z])|\.|$", sentence[idx_start:]).start()
+            idx_start = min(i for i in [sentence.find(token) for token in ["until", "end", "finish", "culminate", "culminating"]] if i > -1)
+            idx_end = re.search(r"(January|February|March|September|October|November|December) [0-9]{,2}", sentence[idx_start:]).end()
             end_expression = sentence[idx_start:idx_start+idx_end]
             dates = search_dates(end_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'}) or []
             if len(dates) != 1:
@@ -49,12 +49,17 @@ def check_for_repetition_expression(sentence):
             idx_end_repetition_expression = idx_start + idx_end
 
             # Determine frequency
-            idx_start = sentence.find(' ', min(i for i in [sentence.find(token) for token in ["every", "each"]] if i > -1)) + 1
-            idx_end = min(i for i in [sentence.find(token) for token in ["until", "end", "finish"]] if i > -1) -1
-            frequency = re.sub(re.compile('[^a-zA-Z]'), '', sentence[idx_start:idx_end])
+            idx_start = sentence.find(' ', min(i for i in [sentence.find(token) for token in ["every", "each", "for"]] if i > -1)) + 1
+            idx_end = min(i for i in [sentence.find(token) for token in ["until", "end", "finish", "culminate", "culminating"]] if i > -1) -1
+            frequency = sentence[idx_start:idx_end].strip()
+
             if len(frequency.split(' ')) > 1:
-                # TODO uncovered use case: longer frequency expression or unrecognized
-                return []
+                if re.match(re.compile("(.*) weeks"), frequency) != None:
+                    frequency = 'Saturday'  # defautling to a random day of the week - we know it's running once a week,
+                                            # which day doesn't matter since we have start & end date
+                else:
+                    # TODO uncovered use case: longer frequency expression or unrecognized
+                    return []
             
             context = sentence[idx_start_repetition_expression:idx_end_repetition_expression]
 
