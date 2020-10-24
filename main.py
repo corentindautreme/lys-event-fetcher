@@ -151,8 +151,8 @@ def get_suggestion_for_story(story, current_datetime, country_data):
 def get_suggestion_for_saving(suggestion, suggestions_to_be_saved, events, suggestions):
     # remove dates for which an event with that name already exists in list
     suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(e['dateTimeCet'][0:10] == date['dateTimeCet'][0:10] and e['name'] == suggestion.name for e in events)]
-    # remove dates for which an event suggestion for that NF was already saved
-    suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(date['dateTimeCet'][0:10] in list(map(lambda d: d['dateTimeCet'][0:10], s['dateTimesCet'])) and s['name'] == suggestion.name for s in suggestions)]
+    # remove dates for which an event suggestion for that NF was already accepted
+    suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(date['dateTimeCet'][0:10] in list(map(lambda d: d['dateTimeCet'][0:10], s['dateTimesCet'])) and s['name'] == suggestion.name and s['accepted'] for s in suggestions)]
     # remove dates for which an event for that NF was already suggested in the current run
     suggestion.dateTimesCet = [date for date in suggestion.dateTimesCet if not any(date['dateTimeCet'][0:10] in list(map(lambda d: d['dateTimeCet'][0:10], s.dateTimesCet)) and s.name == suggestion.name for s in suggestions_to_be_saved)]
 
@@ -171,8 +171,10 @@ def fetch_events(lambda_event, is_local_env):
         nf_names = set([nf_name.lower() for name_list in nf_name_list for nf_name in name_list])
 
         seq_suggestion_id = 0
+        latest_saved_story_link = ""
         try:
             seq_suggestion_id = max(e['id'] for e in suggestions) + 1
+            latest_saved_story_link = suggestions[-1]['sourceLink']
         except ValueError: pass
 
         source = "https://eurovoix.com/feed/"
@@ -188,6 +190,9 @@ def fetch_events(lambda_event, is_local_env):
 
         for item in nf_items:
             story = create_story(item, countries)
+            # keeping at the newest stories only
+            if story.sourceLink == latest_saved_story_link:
+                break
             if story.country != "":
                 stories.append(story)
 
