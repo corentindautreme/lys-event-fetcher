@@ -164,7 +164,7 @@ def fetch_events(lambda_event, is_local_env):
 
     try:
         (events, suggestions, suggestions_table, countries_data) = get_dynamo_data() if not is_local_env else ([], [], None, get_countries_data())
-        
+
         countries = countries_data.keys()
         # grouping all nf names and alt names into one unique list of nf names
         nf_name_list = map(lambda d: [d['eventName']] + d['altEventNames'], list(countries_data.values()))
@@ -194,7 +194,7 @@ def fetch_events(lambda_event, is_local_env):
             if story.sourceLink == latest_saved_story_link:
                 break
             if story.country != "":
-                stories.append(story)
+                stories.insert(0, story) # process stories in reverse order so the latest one is saved last
 
         for story in stories:
             suggestion = get_suggestion_for_story(story, current_datetime=datetime.datetime.now(), country_data=countries_data[story.country])

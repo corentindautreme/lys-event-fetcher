@@ -55,8 +55,8 @@ def check_for_repetition_expression(sentence):
 
             if len(frequency.split(' ')) > 1:
                 if re.match(re.compile("(.*) weeks"), frequency) != None:
-                    frequency = 'Saturday'  # defautling to a random day of the week - we know it's running once a week,
-                                            # which day doesn't matter since we have start & end date
+                    frequency = 'Saturday'  # defautling to a random day of the week - we know it's running once a week, which day doesn't matter
+                                            # since we have start & end date
                 else:
                     # TODO uncovered use case: longer frequency expression or unrecognized
                     return []
