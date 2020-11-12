@@ -34,6 +34,7 @@ def get_dynamo_data():
 
         events = events_table.scan()['Items']
         suggestions = suggestions_table.scan()['Items']
+        suggestions.sort(key=lambda s: s['id'])
         for d in country_ref_table.scan()['Items']:
             countries_data[d['country']] = d
     except NameError:
@@ -173,7 +174,7 @@ def fetch_events(lambda_event, is_local_env):
         seq_suggestion_id = 0
         latest_saved_story_link = ""
         try:
-            seq_suggestion_id = max(e['id'] for e in suggestions) + 1
+            seq_suggestion_id = suggestions[-1]['id'] + 1
             latest_saved_story_link = suggestions[-1]['sourceLink']
         except ValueError: pass
 
