@@ -176,7 +176,7 @@ def fetch_events(lambda_event, is_local_env):
         try:
             seq_suggestion_id = suggestions[-1]['id'] + 1
             latest_saved_story_link = suggestions[-1]['sourceLink']
-        except ValueError: pass
+        except (ValueError, IndexError): pass
 
         source = "https://eurovoix.com/feed/"
         xml = requests.get(source).content
