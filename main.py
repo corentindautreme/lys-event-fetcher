@@ -70,6 +70,7 @@ def create_story(item, countries):
         pass
     content = re.sub(re.compile('<.*?>'), '', content)
     content = re.sub(re.compile(r"&#([0-9]+);"), lambda c: unidecode.unidecode(chr(int(c.group(1)))), content)
+    content = content.replace('(', '').replace(')', '')
     return Story(country, content, item.find('link').text)
 
 
