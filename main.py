@@ -137,7 +137,7 @@ def get_suggestion_for_story(story, current_datetime, country_data):
         return None
 
     dates = []
-    dates.extend(list(map(lambda d: {'dateTimeCet': d[1].strftime("%Y-%m-%d") + "T20:00:00", 'context': d[0], 'sentence': d[2]}, found_dates)))
+    dates.extend(list(map(lambda d: {'dateTimeCet': d[1].strftime("%Y-%m-%d") + "T00:00:00", 'context': d[0], 'sentence': d[2]}, found_dates)))
 
     filtered_dates = []
 
