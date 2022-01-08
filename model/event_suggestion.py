@@ -1,11 +1,10 @@
 class EventSuggestion():
-    def __init__(self, country, name, dateTimesCet, sourceLink, watchLink):
+    def __init__(self, country, name, dateTimesCet, sourceLink):
         self.id = 0
         self.country = country
         self.name = name
         self.dateTimesCet = dateTimesCet
         self.sourceLink = sourceLink
-        self.watchLink = watchLink
         self.accepted = False
         self.processed = False
 
@@ -15,9 +14,8 @@ class EventSuggestion():
         yield 'name', self.name
         yield 'dateTimesCet', self.dateTimesCet
         yield 'sourceLink', self.sourceLink
-        yield 'watchLink', self.watchLink
         yield 'accepted', self.accepted
         yield 'processed', self.processed
 
     def __str__(self):
-        return "{" + str(self.id) + ", " + self.country + ", " + self.name + ", " + str(self.dateTimesCet) + ", " + self.sourceLink + ", " + self.watchLink + "}"
+        return "{" + str(self.id) + ", " + self.country + ", " + self.name + ", " + str(self.dateTimesCet) + ", " + self.sourceLink + "}"

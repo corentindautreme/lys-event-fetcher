@@ -76,7 +76,7 @@ def create_story(item, countries):
 
 def get_suggestion_for_story(story, current_datetime, country_data):
     if country_data is None:
-        country_data = {'eventName': '-', 'stages': ['Night...', 'Final'], 'watchLink': '-'}
+        country_data = {'eventName': '-', 'stages': ['Night...', 'Final']}
         print("WARNING: No referential data found for country " + story.country)
     sentences = story.text.split('.')
     # sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
@@ -147,7 +147,7 @@ def get_suggestion_for_story(story, current_datetime, country_data):
             filtered_dates.append(date)
     filtered_dates = sorted(filtered_dates, key=lambda d: d['dateTimeCet'])
 
-    return EventSuggestion(story.country, country_data['eventName'], filtered_dates, story.sourceLink, country_data['watchLink'])
+    return EventSuggestion(story.country, country_data['eventName'], filtered_dates, story.sourceLink)
 
 
 def get_suggestion_for_saving(suggestion, suggestions_to_be_saved, events, suggestions):

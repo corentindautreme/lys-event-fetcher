@@ -69,10 +69,10 @@ class StoryParsingTest(unittest.TestCase):
         }
         story = Story(
             "Croatia",
-            "Dora will again be used as the selection method for Croatia next year. Dora 2021 will be held in February 2021.",
+            "Dora will again be used as the selection method for Croatia next year. Dora 2022 will be held in February 2022.",
             "http://link.com"
         )
-        suggestion = get_suggestion_for_story(story, current_datetime=datetime.datetime(datetime.datetime.now().year, 9, 1, 0, 0, 0), country_data=country_data)
+        suggestion = get_suggestion_for_story(story, current_datetime=datetime.datetime(2021, 9, 1, 0, 0, 0), country_data=country_data)
         self.assertTrue(len(suggestion.dateTimesCet) == 1)
         date = suggestion.dateTimesCet[0]['dateTimeCet']
         self.assertTrue(date[5:10] == "02-28")

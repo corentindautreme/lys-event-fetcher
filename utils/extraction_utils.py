@@ -205,11 +205,11 @@ def check_for_repetition_expression(sentence):
             if is_day_of_week(frequency):
                 # happening every specified weekday between begin and end date
                 it_date = begin_date
-                end_date = end_date.replace(year=end_date.year+1)
 
                 # correcting the year for upcoming dates (post containing "on February 15" in November => February 15 of the next year)
                 if it_date < current_datetime and it_date.year == current_datetime.year and it_date.month <= 3:
                     it_date = it_date.replace(year=it_date.year+1)
+                    end_date = end_date.replace(year=end_date.year+1)
 
                 i = 1
                 while it_date < end_date:
