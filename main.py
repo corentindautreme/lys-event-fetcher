@@ -63,14 +63,14 @@ def create_story(item, countries):
     if country == "":
         return Story("", "", "")
 
-    content = item.find('{http://purl.org/rss/1.0/modules/content/}encoded').text.replace('<!--[CDATA[', '').replace(']]>', '').replace('\n', '.')
+    content = item.find('{http://purl.org/rss/1.0/modules/content/}encoded').text.replace('<!--[CDATA[', '').replace(']]>', '')#.replace('\n', '.')
     try:
         content = content[0:content.index('Source: ')]
     except ValueError:
         pass
     content = re.sub(re.compile('<.*?>'), '', content)
     content = re.sub(re.compile(r"&#([0-9]+);"), lambda c: unidecode.unidecode(chr(int(c.group(1)))), content)
-    content = content.replace('(', '').replace(')', '')
+    content = content.replace('(', '').replace(')', '').replace('\n\n', '\n').replace('.\n', '. ').replace('\n', '. ')
     return Story(country, content, item.find('link').text)
 
 
@@ -78,7 +78,8 @@ def get_suggestion_for_story(story, current_datetime, country_data):
     if country_data is None:
         country_data = {'eventName': '-', 'stages': ['Night...', 'Final']}
         print("WARNING: No referential data found for country " + story.country)
-    sentences = story.text.split('.')
+    # sentences = story.text.split('.')
+    sentences = re.split(r': |\.', story.text)
     # sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
     found_dates = []
 
