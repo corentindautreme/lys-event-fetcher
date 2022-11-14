@@ -90,9 +90,9 @@ def get_suggestion_for_story(story, current_datetime, country_data):
             if not is_temporal_sentence(sentence):
                 continue
         # correcting sentences by adding repetition where needed to make it possible for the date parser to catch all dates:
-        # January 1 and 2 => January 1 and January 2; 1st and 2nd January => 1st January and 2nd January
-        sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2 and \1 \3,', sentence)
-        sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3 and \2 \3,', sentence)
+        # January 1 and/to 2 => January 1 and/to January 2; 1st and 2nd January => 1st January and/to 2nd January
+        sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) (and|to) ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2 \3 \1 \4,', sentence)
+        sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) (and|to) ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \4 \2 \3 \4,', sentence)
         sentence_events = []
         repetition_dates = check_for_repetition_expression(sentence)
 
