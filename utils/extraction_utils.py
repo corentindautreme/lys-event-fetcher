@@ -39,7 +39,7 @@ def check_for_repetition_expression(sentence):
 
             # Find end of cycle
             idx_start = min(i for i in [sentence.find(token) for token in ["until", "end", "finish", "culminate", "culminating"]] if i > -1)
-            idx_end = re.search(r"(January|February|March|September|October|November|December) [0-9]{,2}", sentence[idx_start:]).end()
+            idx_end = re.search(r"(January|February|March|September|October|November|December) [0-9]{,2}( [0-9]{4})*", sentence[idx_start:]).end()
             end_expression = sentence[idx_start:idx_start+idx_end]
             dates = search_dates(end_expression, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False, 'PREFER_DAY_OF_MONTH': 'last'}) or []
             if len(dates) != 1:

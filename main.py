@@ -97,8 +97,8 @@ def get_suggestion_for_story(story, current_datetime, country_data):
         repetition_dates = check_for_repetition_expression(sentence)
 
         if len(repetition_dates) > 0:
-            found_dates = repetition_dates
-            break
+            found_dates.extend(repetition_dates)
+            continue
         else:
             # re-correcting sentences by replacing the 'and' between 2 dates by a comma, otherwise the dateparser somehow fails to see them
             # January 1 and January 2 => January 1, January 2; 1st January and 2nd January => 1st January, 2nd January
@@ -133,7 +133,7 @@ def get_suggestion_for_story(story, current_datetime, country_data):
     found_dates = list(filter(lambda d: d[1].year <= current_datetime.year + 1, found_dates))
     # before september or beyond march
     found_dates = list(filter(lambda d: d[1].month >= 9 and d[1].month <= 12 or d[1].month <= 3, found_dates))
-    
+
     if len(found_dates) == 0:
         return None
 
